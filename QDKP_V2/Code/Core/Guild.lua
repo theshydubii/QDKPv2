@@ -125,6 +125,11 @@ function QDKP2_DownloadGuild(Revert)
       end
     end
     local Main = QDKP2_FirstWord(datafield)
+    if Main == name or QDKP2altsRestore[name] == name then
+      QDKP2_Debug(1, "Guild", name .. " was linked to itself. Clearing the invalid alt relation.")
+      QDKP2altsRestore[name] = ""
+      Main = ""
+    end
 
     if not Hide_Rank and level >= QDKP2_MINIMUM_LEVEL and ((not QDKP2_IsInGuild(Main) and not QDKP2altsRestore[name]) or QDKP2altsRestore[name] == "") then
 
@@ -250,6 +255,21 @@ function QDKP2_DownloadGuild(Revert)
     end
     QDKP2_ModifiedDuringCheck = false
 
+  end
+
+  for alt, main in pairs(QDKP2alts) do
+    local visited = {}
+    local current = main
+    while current and QDKP2alts[current] do
+      if current == alt or visited[current] then
+        QDKP2_Debug(1, "Guild", "Clearing cyclic alt relation for " .. alt .. ".")
+        QDKP2alts[alt] = nil
+        QDKP2altsRestore[alt] = ""
+        break
+      end
+      visited[current] = true
+      current = QDKP2alts[current]
+    end
   end
 
   QDKP2name = nameTemp

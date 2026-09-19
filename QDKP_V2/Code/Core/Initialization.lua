@@ -125,6 +125,7 @@ function QDKP2_ReadDatabase(GuildName)
 
   QDKP2alts = GuildData.Alts
   QDKP2altsRestore = GuildData.AltsRestore
+  QDKP2_CleanAltData()
 
   QDKP2_SID = GuildData.SID
   QDKP2_ModifiedPlayers = GuildData.ModifiedPlayers

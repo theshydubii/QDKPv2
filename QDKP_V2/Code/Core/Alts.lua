@@ -55,7 +55,7 @@ function QDKP2_MakeAlt(alt,main,sure)
       QDKP2_Msg(main.." is not a valid Guildmember.","ERROR")
       return
     end
-    if main==QDKP2_SelectedPlayer then
+    if main==alt then
       QDKP2_Msg("An alt's Main must be different from the alt himself.","ERROR")
       return
     end
@@ -95,17 +95,15 @@ function QDKP2_GetMain(name)
 -- is recursive, meaning that if a main is an alt of someone, will return the "main" main.
 -- note that this is a safety measure, you should avoid that situation.
   local oldName=""
-  local counter=1
+  local visited={}
   while name do
-    if counter>20 then
-      QDKP2_Msg("WARNING! It seems that you have an Alt loop in your guild (a alt which is the main of his alt).","ERROR")
-      QDKP2_Msg("Please edit your alt relationship to fix this problem.","ERROR")
-      QDKP2_Msg("Players that create the problem: "..tostring(oldName)..", "..tostring(name)..".","ERROR")
-      break
+    if visited[name] then
+      QDKP2_Debug(1,"Core","Alt loop detected between "..tostring(oldName).." and "..tostring(name)..".")
+      return name
     end
+    visited[name]=true
     oldName=name
     name=QDKP2alts[name]
-    counter=counter+1
   end
   return name or oldName
 end
@@ -113,6 +111,33 @@ end
 function QDKP2_IsAlt(name)
 --returns the name of the main if is a alt, nil otherwhise.
   return QDKP2alts[name]
+end
+
+function QDKP2_CleanAltData()
+  local function cleanTable(altTable)
+    for alt, main in pairs(altTable) do
+      local visited = {}
+      local current = main
+      while current and altTable[current] do
+        if current == alt or visited[current] then
+          QDKP2_Debug(1, "Core", "Clearing cyclic alt relation for " .. tostring(alt) .. ".")
+          altTable[alt] = nil
+          break
+        end
+        visited[current] = true
+        current = altTable[current]
+      end
+    end
+  end
+
+  for alt, main in pairs(QDKP2altsRestore) do
+    if alt == main then
+      QDKP2_Debug(1, "Core", "Clearing self-linked alt relation for " .. tostring(alt) .. ".")
+      QDKP2altsRestore[alt] = ""
+    end
+  end
+  cleanTable(QDKP2alts)
+  cleanTable(QDKP2altsRestore)
 end
 
 --Get a formatted label for player ("name" if not alt, "name (main)" if alt)
