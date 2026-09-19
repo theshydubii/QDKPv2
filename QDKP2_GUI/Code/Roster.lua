@@ -259,10 +259,17 @@ function myClass.Refresh(self, forceResort)
 end
 
 function myClass.Update(self)
-  QDKP2_DownloadGuild()
+  GuildRoster()
   QDKP2_UpdateRaid()
   QDKP2_RefreshAll()
-  GuildRoster()
+end
+
+local function IsCurrentGuildMember(name)
+  if QDKP2_IsInGuild(name) then return true; end
+  for i=1,GetNumGuildMembers(true) do
+    local guildName=GetGuildRosterInfo(i)
+    if guildName==name then return true; end
+  end
 end
 
 function myClass.PupulateList(self)
@@ -275,16 +282,14 @@ function myClass.PupulateList(self)
       if QDKP2online[name] and not QDKP2_IsExternal(name) then table.insert(self.List,name); end
     end
   elseif self.Sel=='raid' then
-    if QDKP2GUI_Vars.ShowOutGuild then
-      local list={}
-      for i=1,QDKP2_GetNumRaidMembers() do
-        local name = QDKP2_GetRaidRosterInfo(i)
+    local list={}
+    for i=1,QDKP2_GetNumRaidMembers() do
+      local name,_,_,_,_,_,_,_,_,_,removed=QDKP2_GetRaidRosterInfo(i)
+      if name and (QDKP2GUI_Vars.ShowOutGuild or (not removed and IsCurrentGuildMember(name))) then
         table.insert(list,name)
       end
-      self.List=list
-    else
-      self.List=QDKP2raid
     end
+    self.List=list
   elseif self.Sel=='bid' then
     self.List=QDKP2_CopyTable(QDKP2_BidM_GetBidderList())
     if not QDKP2GUI_Vars.ShowOutGuild then

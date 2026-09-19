@@ -1828,6 +1828,24 @@
         </Scripts>
       </Button>
 
+      <Button name="QDKP2_frame2_updateRoster" inherits="UIPanelButtonTemplate" text="QDKP2_LOC_GUIUPDATEROSTER">
+        <Size>
+          <AbsDimension x="100" y="20"/>
+        </Size>
+        <Anchors>
+          <Anchor relativePoint="BOTTOMLEFT" point="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="35" y="15"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnClick>
+            QDKP2GUI_Roster:Update()
+          </OnClick>
+        </Scripts>
+      </Button>
+
       <ScrollFrame name="QDKP2_frame2_scrollbar" inherits="FauxScrollFrameTemplate">
         <Anchors>
           <Anchor point="TOPLEFT">
