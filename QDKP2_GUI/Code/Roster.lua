@@ -273,6 +273,7 @@ local function IsCurrentGuildMember(name)
 end
 
 function myClass.PupulateList(self)
+  myClass.Sort.LastLen=-1
   if self.Sel=='guild' then
     self.List=QDKP2name
     QDKP2frame2_selectList_guild:SetChecked(true)

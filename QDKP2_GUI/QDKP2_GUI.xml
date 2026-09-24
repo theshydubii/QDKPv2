@@ -1833,9 +1833,9 @@
           <AbsDimension x="100" y="20"/>
         </Size>
         <Anchors>
-          <Anchor relativePoint="BOTTOMLEFT" point="BOTTOMLEFT">
+          <Anchor relativePoint="LEFT" point="RIGHT" relativeTo="QDKP2_frame2_showRaid">
             <Offset>
-              <AbsDimension x="35" y="15"/>
+              <AbsDimension x="-5" y="0"/>
             </Offset>
           </Anchor>
         </Anchors>
