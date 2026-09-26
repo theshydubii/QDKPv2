@@ -1828,7 +1828,7 @@
         </Scripts>
       </Button>
 
-      <Button name="QDKP2_frame2_updateRoster" inherits="UIPanelButtonTemplate" text="QDKP2_LOC_GUIUPDATEROSTER">
+      <Button name="QDKP2_frame2_updateRoster" inherits="UIPanelButtonTemplate" text="QDKP2_LOC_GUIUPDATEROSTER" id="12">
         <Size>
           <AbsDimension x="100" y="20"/>
         </Size>
