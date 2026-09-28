@@ -96,10 +96,14 @@ function QDKP2_DownloadGuild(Revert)
   table.wipe(QDKP2alts)
   local nameTemp = {}
   local rankIndexTemp = {} --I need this to perform IsInGuild() Check. Can't iterate each time throu QDKP2name. Little garbage generation but oh cmon.
+  local inGuild = IsInGuild()
+  local guildSize = inGuild and GetNumGuildMembers(true) or 0
+  local externalList = ListFromDict(QDKP2externals)
+  local memberCount = inGuild and guildSize + #externalList or 0
 
-  for i = 1, QDKP2_GetNumGuildMembers(true) do
+  for i = 1, memberCount do
 
-    local name, rank, rankIndex, level, class, zone, note, officernote, datafield, online, status, isInGuild = QDKP2_GetGuildRosterInfo(i)
+    local name, rank, rankIndex, level, class, zone, note, officernote, datafield, online, status, isInGuild = QDKP2_GetGuildRosterInfo(i, guildSize, externalList)
     if name == nil then
       name = ""
     end
@@ -351,11 +355,12 @@ function QDKP2_UploadAll()
     end
   end
 
-  if (guildCount == 0 and localCount == 0) then
+  local failed = uploaded - guildCount - localCount
+  if uploaded == 0 then
     -- if we had no uploads
     QDKP2_Msg(QDKP2_LOC_NoMod, "INFO", QDKP2_COLOR_GREY)
-  elseif ((localCount + guildCount) ~= uploaded) then
-    local msg = string.gsub(QDKP2_LOC_Failed, "$FAILED", tostring(count - uploaded))
+  elseif failed > 0 then
+    local msg = string.gsub(QDKP2_LOC_Failed, "$FAILED", tostring(failed))
     QDKP2_Msg(msg, "ERROR")
     GuildRoster()
   elseif guildCount == 0 then
@@ -436,17 +441,21 @@ function QDKP2_GetNumGuildMembers()
   return GetNumGuildMembers(true) + table.getn(QDKP2ext_list)
 end
 
-function QDKP2_GetGuildRosterInfo(i)
+function QDKP2_GetGuildRosterInfo(i, GuildSize, ext_list)
   local name, rank, rankIndex, level, class, zone, note, officernote, datafield, online, status, isinguild
-  local GuildSize = GetNumGuildMembers(true)
-  if not IsInGuild() then
-    GuildSize = 0;
-  end                      --see QDKP2_GetNumGuildMembers()
-  local ext_list = ListFromDict(QDKP2externals)
+  if GuildSize == nil then
+    GuildSize = GetNumGuildMembers(true)
+    if not IsInGuild() then
+      GuildSize = 0;
+    end
+  end
   if i <= GuildSize then
     name, rank, rankIndex, level, class, zone, note, officernote, online, status = GetGuildRosterInfo(i)
     isinguild = true
-  elseif i - GuildSize <= #ext_list then
+  else
+    ext_list = ext_list or ListFromDict(QDKP2externals)
+  end
+  if i > GuildSize and i - GuildSize <= #ext_list then
     name = ext_list[i - GuildSize]
     rank = "*External*"
     rankIndex = 255

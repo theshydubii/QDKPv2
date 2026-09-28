@@ -264,18 +264,22 @@ function myClass.Update(self)
   QDKP2_RefreshAll()
 end
 
-local function IsCurrentGuildMember(name)
+local function IsCurrentGuildMember(name, rosterCache)
   if QDKP2_IsInGuild(name) then return true; end
-  for i=1,GetNumGuildMembers(true) do
-    local guildName=GetGuildRosterInfo(i)
-    if guildName==name then return true; end
+  if not rosterCache.members then
+    rosterCache.members={}
+    for i=1,GetNumGuildMembers(true) do
+      local guildName=GetGuildRosterInfo(i)
+      rosterCache.members[guildName]=true
+    end
   end
+  return rosterCache.members[name]
 end
 
 function myClass.PupulateList(self)
   myClass.Sort.LastLen=-1
   if self.Sel=='guild' then
-    self.List=QDKP2name
+    self.List=QDKP2_CopyTable(QDKP2name)
     QDKP2frame2_selectList_guild:SetChecked(true)
   elseif self.Sel=='guildonline' then
     self.List={}
@@ -284,9 +288,10 @@ function myClass.PupulateList(self)
     end
   elseif self.Sel=='raid' then
     local list={}
+    local rosterCache={}
     for i=1,QDKP2_GetNumRaidMembers() do
       local name,_,_,_,_,_,_,_,_,_,removed=QDKP2_GetRaidRosterInfo(i)
-      if name and (QDKP2GUI_Vars.ShowOutGuild or (not removed and IsCurrentGuildMember(name))) then
+      if name and (QDKP2GUI_Vars.ShowOutGuild or (not removed and IsCurrentGuildMember(name,rosterCache))) then
         table.insert(list,name)
       end
     end
@@ -294,7 +299,8 @@ function myClass.PupulateList(self)
   elseif self.Sel=='bid' then
     self.List=QDKP2_CopyTable(QDKP2_BidM_GetBidderList())
     if not QDKP2GUI_Vars.ShowOutGuild then
-      for i,name in pairs(self.List) do
+      for i=#self.List,1,-1 do
+        local name=self.List[i]
         if not QDKP2_IsInGuild(name) then table.remove(self.List,i); end
       end
     end

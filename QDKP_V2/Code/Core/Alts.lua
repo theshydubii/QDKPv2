@@ -37,7 +37,7 @@ function QDKP2_MakeAlt(alt,main,sure)
   end
   if not main then
     QDKP2_Debug(2,"Core","Clearing alt relation for "..alt)
-    if not QDKP2_IsAlt(alt) then QDKP2_Msg(name.." is not an alt."); return; end
+    if not QDKP2_IsAlt(alt) then QDKP2_Msg(alt.." is not an alt."); return; end
     QDKP2altsRestore[alt]=""
 
     --QDKP2alts[alt]=nil
@@ -66,22 +66,31 @@ function QDKP2_MakeAlt(alt,main,sure)
     local altTotal=QDKP2_GetTotal(alt)
     local altSpent=QDKP2_GetSpent(alt)
     local altHours=QDKP2_GetHours(alt)
-    if not QDKP2_IsAlt(alt) and (altTotal~=0 or altSpent~=0) then
-      local mess="$ALT's DKP pool wasn't empty.\nDo you want to merge them with\n$MAIN's?\n($ALT's net: "..tostring(altTotal-altSpent).." DKP)."
+    local function ApplyAltRelation()
+      QDKP2altsRestore[alt]=main
+      QDKP2note[alt]=nil
+      QDKP2stored[alt]=nil
+      QDKP2_DownloadGuild()
+      QDKP2_Msg("Upload Changes to store the modifications.")
+    end
+    if not QDKP2_IsAlt(alt) and (altTotal~=0 or altSpent~=0 or altHours~=0) then
+      local mess="$ALT's DKP pool wasn't empty.\nDo you want to merge them with\n$MAIN's?\n($ALT's net: "..tostring(altTotal-altSpent).." DKP).\nDeclining cancels the alt link."
       mess=string.gsub(mess,"$ALT",alt)
       mess=string.gsub(mess,"$MAIN",main)
       QDKP2_AskUser(mess, function(main, alt, tot, spent, hours)
+        ApplyAltRelation()
         QDKP2_AddTotals(main,tot,spent,hours,alt.."'s DKP merging",true,nil,nil,true)
         QDKP2_RefreshAll()
       end, main, alt, altTotal, altSpent, altHours)
+      return
     end
 
-    QDKP2altsRestore[alt]=main
-    QDKP2note[alt]=nil
-    QDKP2stored[alt]=nil
+    ApplyAltRelation()
   end
-  QDKP2_DownloadGuild()
-  QDKP2_Msg("Upload Changes to store the modifications.")
+  if not main then
+    QDKP2_DownloadGuild()
+    QDKP2_Msg("Upload Changes to store the modifications.")
+  end
 end
 
 function QDKP2_ClearAlt(alt)

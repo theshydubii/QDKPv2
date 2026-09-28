@@ -34,11 +34,7 @@ function QDKP2_NewExternal(name,data)
     return
   end
   QDKP2externals[name]={}
-  if text then
-    QDKP2externals[name].datafield=data
-  else
-    QDKP2externals[name].datafield=""
-  end
+  QDKP2externals[name].datafield=data or ""
   QDKP2externals[name].class="--"
   QDKP2externals[name].version=1
   QDKP2_DownloadGuild()
