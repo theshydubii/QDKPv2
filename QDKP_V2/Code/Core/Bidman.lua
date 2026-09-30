@@ -255,12 +255,15 @@ function QDKP2_BidM_BidWatcher(txt,player,channel)
             QDKP2_BidM_SendMessage(player,"NOBID",channel,QDKP2_LOC_NoEligible)
             return false
           end
-          if newBet.value and oldValue then
-            if oldValue==newBet.value then    --is it the same bid as the previous?
+          local previousBid = oldValue or oldDkp
+          local currentBid = newBet.value or newBet.dkp
+          if currentBid and previousBid then
+            if previousBid==currentBid then    --is it the same bid as the previous?
               QDKP2_BidM_SendMessage(player,"NOBID",channel,QDKP2_LOC_BidEqual)
               return false
-            elseif oldValue>newBet.value and not QDKP2_BidM_AllowLesserBid then   --is the bid less then the previous?
-              QDKP2_BidM_SendMessage(player,"NOBID",channel,QDKP2_LOC_BidLess)
+            elseif previousBid>currentBid and not QDKP2_BidM_AllowLesserBid then   --is the bid less then the previous?
+              local message=QDKP2_LOC_BidLess:gsub("$PREVIOUS",tostring(previousBid))
+              QDKP2_BidM_SendMessage(player,"NOBID",channel,message)
               return false
             end
           end
@@ -273,9 +276,8 @@ function QDKP2_BidM_BidWatcher(txt,player,channel)
               QDKP2_BidM_SendMessage(player,"NOBID",channel,mess)
               return false
             elseif dkp < newBet.minBid then                               --does the bid reach the minimum bid amount?
-              local mess=QDKP2_LOC_BidLessMinimum
-              mess=mess:gsub("$MINBID",tostring(newBet.minBid))
-              QDKP2_BidM_SendMessage(player,"NOBID",channel,mess)
+              local message=QDKP2_LOC_BidLessMinimum:gsub("$MINBID",tostring(newBet.minBid))
+              QDKP2_BidM_SendMessage(player,"NOBID",channel,message)
               return false
             elseif newBet.maxBid and dkp > newBet.maxBid then
               local mess=QDKP2_LOC_BidMoreMaximum
