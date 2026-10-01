@@ -43,6 +43,10 @@ function QDKP2_BidM_StartBid(item, phase, silentAnnounce, allowNoSession)
     QDKP2_BidM.LastSettlement = nil
     QDKP2_BidM.BIDDING = true
     QDKP2_BidM.ACCEPT_BID = true
+    if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoOpen and QDKP2GUI_RaidLoot_Toggle and
+        QDKP2_RaidLootFrame and not QDKP2_RaidLootFrame:IsShown() then
+        QDKP2GUI_RaidLoot_Toggle()
+    end
     if not silentAnnounce and QDKP2_BidM_AnnounceStart and item and #item > 0 then
         local mess = phase and ("Bidding is open for $ITEM (" .. phase .. ").") or QDKP2_LOC_BidMStartString
         mess = string.gsub(mess, "$ITEM", tostring(QDKP2_BidM.ITEM or '-'))
@@ -92,6 +96,10 @@ function QDKP2_BidM_StartRoll(mode, item, allowNoSession)
     QDKP2_BidM.Phase = mode
     QDKP2_BidM.LIST = {}
     QDKP2_BidM.LastSettlement = nil
+    if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoOpen and QDKP2GUI_RaidLoot_Toggle and
+        QDKP2_RaidLootFrame and not QDKP2_RaidLootFrame:IsShown() then
+        QDKP2GUI_RaidLoot_Toggle()
+    end
     local message = mode == "MS" and QDKP2_LOC_RollMSStart or mode == "OS" and QDKP2_LOC_RollOSStart or
                         QDKP2_LOC_RollDEStart
     message = string.gsub(message or "$PHASE roll opened for $ITEM. Roll 1-100.", "$ITEM", tostring(item or "loot"))
@@ -258,6 +266,9 @@ local function notify_winner(winner)
         QDKP2_BidM_CloseBid(true)
         QDKP2_BidM.Phase = nil
         QDKP2_Events:Fire("DATA_UPDATED", "roster")
+        if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoClose and QDKP2_RaidLootFrame then
+            QDKP2_RaidLootFrame:Hide()
+        end
         return
     end
     if bid.value then
@@ -334,6 +345,9 @@ local function notify_winner(winner)
     end
     QDKP2_BidM_CloseBid(true)
     QDKP2_BidM.Phase = nil
+    if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoClose and QDKP2_RaidLootFrame then
+        QDKP2_RaidLootFrame:Hide()
+    end
 end
 
 function QDKP2_BidM_Winner(winner, autoSettle, skipCountdown)

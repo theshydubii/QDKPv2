@@ -334,14 +334,8 @@ function myClass.PupulateList(self)
         self.List = list
     elseif self.Sel == 'bid' then
         self.List = QDKP2_CopyTable(QDKP2_BidM_GetBidderList())
-        if not QDKP2GUI_Vars.ShowOutGuild then
-            for i = #self.List, 1, -1 do
-                local name = self.List[i]
-                if not QDKP2_IsInGuild(name) then
-                    table.remove(self.List, i);
-                end
-            end
-        end
+        -- The Bid Manager list is authoritative: show every recorded bidder,
+        -- including accepted out-of-guild raiders.
     end
     QDKP2_Debug(2, "GUI-Roster", "List populated. Voices=" .. tostring(#self.List))
 end

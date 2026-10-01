@@ -5,6 +5,8 @@ local settings = {
     includeOptional = false,
     bisOverMS = false,
     raidWarning = true,
+    autoOpen = true,
+    autoClose = false,
     messageDelay = 0
 }
 
@@ -147,6 +149,8 @@ addCheckbox("includeOptional", "Include optional", 18, -180)
 addCheckbox("bidding", "Bidding mode", 190, -180)
 addCheckbox("bisOverMS", "BIS before MS", 18, -207)
 addCheckbox("raidWarning", "Raid Warning", 190, -207)
+addCheckbox("autoOpen", "Auto open on bid/roll", 18, -234)
+addCheckbox("autoClose", "Auto close after winner", 190, -234)
 
 frame:SetScript("OnUpdate", function()
     if not IsMouseButtonDown("LeftButton") and not IsMouseButtonDown("RightButton") and not IsMouseButtonDown("MiddleButton") then

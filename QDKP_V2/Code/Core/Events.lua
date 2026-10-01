@@ -135,7 +135,7 @@ function QDKP2_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
         QDKP2_OnGroupChat(arg1, arg2, arg3)
 
         -- ROLLS MONITOR
-    elseif event == "CHAT_MSG_SYSTEM" and (QDKP2_BidM_isBidding() or QDKP2_RollPhase) then
+    elseif event == "CHAT_MSG_SYSTEM" and QDKP2_RollPhase then
         local player, roll, rollLow, rollHigh = QDKP2libs.Deformat(arg1, RANDOM_ROLL_RESULT)
         if player then
             QDKP2_BidM_RollWatch(player, roll, rollLow, rollHigh);

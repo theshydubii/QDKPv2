@@ -33,6 +33,8 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 			QDKP2_RaidLootCheck_bidding,
 			QDKP2_RaidLootCheck_bisOverMS,
 			QDKP2_RaidLootCheck_raidWarning,
+			QDKP2_RaidLootCheck_autoOpen,
+			QDKP2_RaidLootCheck_autoClose,
 		}
 		for _, check in ipairs(raidLootChecks) do
 			if check then S:HandleCheckBox(check) end
