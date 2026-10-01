@@ -8,10 +8,42 @@ if not AS:IsAddonLODorEnabled("QDKP2_GUI") then return end
 
 S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 	if not E.private.addOnSkins.QDKP2_GUI then return end
+	local qdkpPopups = {
+		QDKP2_InputBox, QDKP2_NotifyBox, QDKP2_QuestionBox, QDKP2_CopyWindow,
+	}
+	for _, popup in ipairs(qdkpPopups) do
+		if popup then
+			popup:StripTextures()
+			popup:CreateBackdrop("Transparent")
+			local closeButton = _G[popup:GetName() .. "_ButtonClose"]
+			if closeButton then S:HandleCloseButton(closeButton, popup) end
+		end
+	end
+	local qdkpPopupEdits = {
+		QDKP2_InputBox_Data, QDKP2_CopyWindow_Data,
+	}
+	for _, editBox in ipairs(qdkpPopupEdits) do
+		if editBox then S:HandleEditBox(editBox) end
+	end
+	local qdkpPopupButtons = {
+		QDKP2_InputBox_Cancel, QDKP2_InputBox_OK,
+		QDKP2_NotifyBox_OK, QDKP2_QuestionBox_Cancel, QDKP2_QuestionBox_OK,
+	}
+	for _, button in ipairs(qdkpPopupButtons) do
+		if button then S:HandleButton(button) end
+	end
+	local qdkpCopyChecks = {
+		QDKP2_CopyWindow_Format1, QDKP2_CopyWindow_Format2,
+		QDKP2_CopyWindow_Format3, QDKP2_CopyWindow_Format4,
+	}
+	for _, check in ipairs(qdkpCopyChecks) do
+		if check then S:HandleCheckBox(check) end
+	end
 	if QDKP2_RaidLootFrame then
 		QDKP2_RaidLootFrame:StripTextures()
 		QDKP2_RaidLootFrame:CreateBackdrop("Transparent")
 		if QDKP2_RaidLootItemButton then S:HandleButton(QDKP2_RaidLootItemButton) end
+		if QDKP2_RaidLootCloseButton then S:HandleCloseButton(QDKP2_RaidLootCloseButton, QDKP2_RaidLootFrame) end
 		if QDKP2_RaidLootItemIDBox then
 			S:HandleEditBox(QDKP2_RaidLootItemIDBox)
 			QDKP2_RaidLootItemIDBox:StripTextures()
@@ -22,9 +54,15 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 			QDKP2_RaidLootMS, QDKP2_RaidLootOS, QDKP2_RaidLootDE,
 			QDKP2_RaidLootBIS, QDKP2_RaidLootAlternative, QDKP2_RaidLootOptional,
 			QDKP2_RaidLootCloseRound, QDKP2_RaidLootWinner, QDKP2_RaidLootReopen,
+			QDKP2_RaidLootItemClear,
 		}
 		for _, button in ipairs(raidLootButtons) do
-			if button then S:HandleButton(button) end
+			if button then
+				S:HandleButton(button)
+				-- Enable()/Disable() reset Blizzard's button textures, so re-skin whenever that happens
+				button:HookScript("OnEnable", function() S:HandleButton(button) end)
+				button:HookScript("OnDisable", function() S:HandleButton(button) end)
+			end
 		end
 		local raidLootChecks = {
 			QDKP2_RaidLootCheck_includeBIS,
@@ -33,7 +71,6 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 			QDKP2_RaidLootCheck_bidding,
 			QDKP2_RaidLootCheck_bisOverMS,
 			QDKP2_RaidLootCheck_raidWarning,
-			QDKP2_RaidLootCheck_autoOpen,
 			QDKP2_RaidLootCheck_autoClose,
 		}
 		for _, check in ipairs(raidLootChecks) do

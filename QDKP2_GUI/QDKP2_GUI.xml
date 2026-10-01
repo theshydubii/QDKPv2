@@ -1454,6 +1454,10 @@
           </OnLoad>
           <OnClick>
             QDKP2GUI_Roster:ChangeList("bid");
+            if QDKP2_RaidLootFrame then
+              QDKP2_RaidLootFrame:Show();
+              if QDKP2GUI_RaidLoot_Refresh then QDKP2GUI_RaidLoot_Refresh(); end
+            end
           </OnClick>
         </Scripts>
       </CheckButton>

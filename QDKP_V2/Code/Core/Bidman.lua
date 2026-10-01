@@ -41,12 +41,9 @@ function QDKP2_BidM_StartBid(item, phase, silentAnnounce, allowNoSession)
     QDKP2_BidM.Phase = phase
     QDKP2_BidM.LIST = {}
     QDKP2_BidM.LastSettlement = nil
+    QDKP2_BidM.PendingWinner = nil
     QDKP2_BidM.BIDDING = true
     QDKP2_BidM.ACCEPT_BID = true
-    if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoOpen and QDKP2GUI_RaidLoot_Toggle and
-        QDKP2_RaidLootFrame and not QDKP2_RaidLootFrame:IsShown() then
-        QDKP2GUI_RaidLoot_Toggle()
-    end
     if not silentAnnounce and QDKP2_BidM_AnnounceStart and item and #item > 0 then
         local mess = phase and ("Bidding is open for $ITEM (" .. phase .. ").") or QDKP2_LOC_BidMStartString
         mess = string.gsub(mess, "$ITEM", tostring(QDKP2_BidM.ITEM or '-'))
@@ -96,10 +93,7 @@ function QDKP2_BidM_StartRoll(mode, item, allowNoSession)
     QDKP2_BidM.Phase = mode
     QDKP2_BidM.LIST = {}
     QDKP2_BidM.LastSettlement = nil
-    if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoOpen and QDKP2GUI_RaidLoot_Toggle and
-        QDKP2_RaidLootFrame and not QDKP2_RaidLootFrame:IsShown() then
-        QDKP2GUI_RaidLoot_Toggle()
-    end
+    QDKP2_BidM.PendingWinner = nil
     local message = mode == "MS" and QDKP2_LOC_RollMSStart or mode == "OS" and QDKP2_LOC_RollOSStart or
                         QDKP2_LOC_RollDEStart
     message = string.gsub(message or "$PHASE roll opened for $ITEM. Roll 1-100.", "$ITEM", tostring(item or "loot"))
@@ -265,7 +259,7 @@ local function notify_winner(winner)
         QDKP2_RollPhase = nil
         QDKP2_BidM_CloseBid(true)
         QDKP2_BidM.Phase = nil
-        QDKP2_BidM.LastSettlement = nil
+        QDKP2_BidM.PendingWinner = nil
         QDKP2_Events:Fire("DATA_UPDATED", "roster")
         if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoClose and QDKP2_RaidLootFrame then
             QDKP2_RaidLootFrame:Hide()
@@ -346,7 +340,7 @@ local function notify_winner(winner)
     end
     QDKP2_BidM_CloseBid(true)
     QDKP2_BidM.Phase = nil
-    QDKP2_BidM.LastSettlement = nil
+    QDKP2_BidM.PendingWinner = nil
     if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoClose and QDKP2_RaidLootFrame then
         QDKP2_RaidLootFrame:Hide()
     end
@@ -380,9 +374,9 @@ function QDKP2_BidM_Winner(winner, autoSettle, skipCountdown)
     end
 end
 
-function QDKP2_BidM_UndoLastSettlementAndReopen()
+function QDKP2_BidM_UndoLastSettlementAndReopen(reason)
     local round = QDKP2_BidM.LastSettlement
-    if not round or not QDKP2_BidM_CountdownCount then
+    if not round then
         QDKP2_Msg("There is no recent round settlement to undo.", "WARNING")
         return
     end
@@ -421,7 +415,14 @@ function QDKP2_BidM_UndoLastSettlementAndReopen()
     else
         reopenMessage = reopenMessage .. " No bids are currently recorded."
     end
+    if reason and reason ~= "" then
+        reopenMessage = reopenMessage .. " Reason: " .. reason
+    end
     QDKP2_BidM_SendMessage(nil, "MANAGER", "RAID_WARNING", reopenMessage)
+    if QDKP2_BidM_LogBids and QDKP2_IsManagingSession() then
+        QDKP2log_Entry("RAID", reopenMessage, QDKP2LOG_BIDDING)
+        QDKP2_Events:Fire("DATA_UPDATED", "log")
+    end
     QDKP2_Events:Fire("DATA_UPDATED", "all")
     return round
 end
@@ -436,9 +437,10 @@ local function countdown_tick()
         QDKP2_BidM_SendMessage(nil, "MANAGER", "countdown", str)
         QDKP2_BidM_CountdownCount = QDKP2_BidM_CountdownCount - 1
     elseif QDKP2_BidM_CountdownCount == 0 then
+        local winner = QDKP2_BidM_CountdownWinner
         QDKP2_BidM_CountdownCancel()
-        if QDKP2_BidM_CountdownWinner then
-            notify_winner(QDKP2_BidM_CountdownWinner)
+        if winner then
+            notify_winner(winner)
         end
     end
 end

@@ -40,6 +40,47 @@ function QDKP2_StartSession(SessionName)
 
     SessionName = SessionName or QDKP2_LOC_NoSessName
 
+    -- Session names are unique: reopen a matching closed session instead of creating a duplicate
+    local existingSID
+    for sid, session in pairs(QDKP2log) do
+        if session._NAME == SessionName then
+            existingSID = sid
+            break
+        end
+    end
+
+    -- Reset any leftover roll/bid state from a previous session
+    if QDKP2_BidM_Reset then
+        if QDKP2_RollPhase then
+            QDKP2_BidM_CloseRoll(false);
+        end
+        if QDKP2_BidM_isBidding() then
+            QDKP2_BidM_CloseBid(true);
+        end
+        QDKP2_BidM_CountdownCancel()
+        QDKP2_BidM.ITEM = nil
+        QDKP2_BidM.Phase = nil
+        QDKP2_BidM.LastSettlement = nil
+        QDKP2_BidM.PendingWinner = nil
+        QDKP2_BidM_Reset()
+    end
+
+    if existingSID then
+        SID = existingSID
+        QDKP2_SID.MANAGING = SID
+        QDKP2log[SID]._TSTO = nil
+
+        -- Reset the Raid custom tables
+        table.wipe(QDKP2standby)
+        table.wipe(QDKP2raidRemoved)
+
+        local msg = string.gsub(QDKP2_LOC_NewSession, "$SESSIONNAME", SessionName)
+        QDKP2_Msg(msg .. " (reopened existing session)")
+        QDKP2_Events:Fire("SESSION_START", SID)
+        QDKP2_Events:Fire("DATA_UPDATED", "all")
+        return
+    end
+
     QDKP2_SID.INDEX = QDKP2_SID.INDEX + 1
     SID = tostring(QDKP2_SID.INDEX) .. '.' .. QDKP2_PLAYER_NAME_12
     QDKP2_SID.MANAGING = SID

@@ -7,7 +7,7 @@ function QDKP2_OpenInputBox(text, func, arg2, arg3, arg4, arg5)
     QDKP2_InputBox_text:SetText(text)
     QDKP2_InputBox_Data:SetText("")
     QDKP2_InputBox_Data:SetFocus()
-    QDKP2_InputBox:SetHeight(QDKP2_InputBox_text:GetStringHeight() + 100)
+    QDKP2_InputBox:SetHeight(QDKP2_InputBox_text:GetStringHeight() + 135)
     QDKP2_InputBox:Show()
     QDKP2_InputBox_func = func
     QDKP2_InputBox_arg2 = arg2

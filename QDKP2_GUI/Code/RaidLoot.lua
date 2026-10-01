@@ -5,7 +5,6 @@ local settings = {
     includeOptional = false,
     bisOverMS = false,
     raidWarning = true,
-    autoOpen = true,
     autoClose = false,
     messageDelay = 0
 }
@@ -28,6 +27,7 @@ local MAX_MESSAGE_LENGTH = 230
 local frame = CreateFrame("Frame", "QDKP2_RaidLootFrame", UIParent)
 frame:SetWidth(390)
 frame:SetHeight(445)
+frame:ClearAllPoints()
 frame:SetPoint("CENTER")
 frame:SetFrameStrata("DIALOG")
 frame:SetMovable(true)
@@ -52,7 +52,17 @@ frame:SetBackdrop({
         bottom = 11
     }
 })
+local function QDKP2_RaidLoot_Position()
+    frame:ClearAllPoints()
+    if QDKP2_Frame2 then
+        frame:SetPoint("RIGHT", QDKP2_Frame2, "LEFT", -10, 0)
+    else
+        frame:SetPoint("CENTER")
+    end
+end
+
 frame:Hide()
+frame:SetScript("OnShow", QDKP2_RaidLoot_Position)
 tinsert(UISpecialFrames, "QDKP2_RaidLootFrame")
 
 local function addText(parent, text, point, relative, relativePoint, x, y, width, height)
@@ -66,10 +76,11 @@ local function addText(parent, text, point, relative, relativePoint, x, y, width
 end
 
 local title = addText(frame, "QDKP Loot Announcer", "TOP", frame, "TOP", 0, -17, 300, 20)
-title:SetFontObject(GameFontNormal)
+title:SetFont("Fonts\\MORPHEUS.ttf", 15, "OUTLINE")
 
 local closeButton = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 closeButton:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, -6)
+QDKP2_RaidLootCloseButton = closeButton
 closeButton:SetScript("OnClick", function()
     frame:Hide()
 end)
@@ -118,7 +129,14 @@ itemIDBox:SetScript("OnEnterPressed", function(self)
     self:ClearFocus()
 end)
 
-local itemName = addText(frame, "No item selected", "LEFT", itemIDBox, "RIGHT", 15, 0, 140, 20)
+local itemClearButton = CreateFrame("Button", "QDKP2_RaidLootItemClear", frame, "UIPanelButtonTemplate")
+itemClearButton:SetWidth(60)
+itemClearButton:SetHeight(22)
+itemClearButton:SetPoint("LEFT", itemIDBox, "RIGHT", 10, 0)
+itemClearButton:SetText("Clear")
+itemClearButton:SetScript("OnClick", function()
+    QDKP2_RaidLoot_SelectItem(nil, nil)
+end)
 
 local status = addText(frame, "Ready", "TOPLEFT", frame, "TOPLEFT", 25, -127, 340, 18)
 status:SetTextColor(1, 0.82, 0.25)
@@ -149,8 +167,7 @@ addCheckbox("includeOptional", "Include optional", 18, -180)
 addCheckbox("bidding", "Bidding mode", 190, -180)
 addCheckbox("bisOverMS", "BIS before MS", 18, -207)
 addCheckbox("raidWarning", "Raid Warning", 190, -207)
-addCheckbox("autoOpen", "Auto open on bid/roll", 18, -234)
-addCheckbox("autoClose", "Auto close after winner", 190, -234)
+addCheckbox("autoClose", "Auto close after winner", 18, -234)
 
 frame:SetScript("OnUpdate", function()
     if not IsMouseButtonDown("LeftButton") and not IsMouseButtonDown("RightButton") and not IsMouseButtonDown("MiddleButton") then
@@ -173,10 +190,10 @@ local function createButton(name, label, x, y, width, callback)
 end
 
 local phaseButtons = {}
-phaseButtons.MS = createButton("QDKP2_RaidLootMS", "Roll MS", 20, -275, 105, function()
+phaseButtons.MS = createButton("QDKP2_RaidLootMS", "MS", 20, -275, 105, function()
     QDKP2_RaidLoot_StartRound("MS")
 end)
-phaseButtons.OS = createButton("QDKP2_RaidLootOS", "Roll OS", 142, -275, 105, function()
+phaseButtons.OS = createButton("QDKP2_RaidLootOS", "OS", 142, -275, 105, function()
     QDKP2_RaidLoot_StartRound("OS")
 end)
 phaseButtons.DE = createButton("QDKP2_RaidLootDE", "DE / Transmog", 264, -275, 105, function()
@@ -226,7 +243,6 @@ function QDKP2_RaidLoot_SelectItem(itemID, link)
     selectedItemLink = link
     itemIDBox:SetText(selectedItemID and tostring(selectedItemID) or "")
     local name = selectedItemID and (GetItemInfo(selectedItemID) or ("item:" .. selectedItemID)) or nil
-    itemName:SetText(name or "No item selected")
     itemButton:SetText(link or name or "Drag an item here")
     if selectedItemID then
         local _, linkFromCache, _, _, _, _, _, _, _, texture = GetItemInfo(selectedItemID)
@@ -449,21 +465,37 @@ function QDKP2_RaidLoot_CloseRound()
         return;
     end
     if activeRound.mode == "roll" then
-        local winner = QDKP2_BidM_CloseRoll(true)
-        if not winner then
-            status:SetText("Roll closed. Select a winner in the Bid Manager list.");
-            return;
+        local winner = QDKP2_BidM.PendingWinner
+        if winner then
+            QDKP2_BidM_CloseRoll(false)
+            QDKP2_BidM_Winner(winner, false, false)
+            activeRound = nil
+            status:SetText("Roll winner: " .. winner)
+        else
+            winner = QDKP2_BidM_CloseRoll(true)
+            if not winner then
+                status:SetText("Roll closed. Select a winner in the Bid Manager list.");
+            else
+                activeRound = nil
+                status:SetText("Roll winner: " .. winner)
+            end
         end
-        status:SetText("Roll winner: " .. winner)
     else
         QDKP2_BidM_CloseBid()
-        local winner, value, tied = findBestBid()
+        local winner, value, tied = QDKP2_BidM.PendingWinner, nil, false
+        if winner then
+            local bid = QDKP2_BidM.LIST[winner]
+            value = bid and (bid.dkp or bid.value)
+        else
+            winner, value, tied = findBestBid();
+        end
         if not winner then
             status:SetText("Bidding closed with no valid bids.")
         elseif tied then
             status:SetText("Top bid is tied. Select the winner in the Bid Manager list.")
         else
             QDKP2_BidM_Winner(winner, true, false)
+            activeRound = nil
             status:SetText("Winner selected: " .. winner .. " (" .. tostring(value) .. ")")
         end
     end
@@ -476,24 +508,33 @@ function QDKP2_RaidLoot_SetSelectedWinner()
         status:SetText("Select a bidder in the Bid Manager roster first.")
         return
     end
-    local bid = QDKP2_BidM.LIST[selected]
-    QDKP2_BidM_Winner(selected, not bid.rollPhase, false)
-    status:SetText("Winner selected: " .. selected)
+    local bidderCount = 0
+    for _ in pairs(QDKP2_BidM.LIST) do bidderCount = bidderCount + 1; end
+    if bidderCount < 2 then
+        status:SetText("Select Winner requires at least two bidders or rollers.")
+        return
+    end
+    QDKP2_BidM.PendingWinner = selected
+    status:SetText("Winner staged: " .. selected .. ". Press Close Round to start the countdown.")
     QDKP2_RaidLoot_Refresh()
 end
 
 function QDKP2_RaidLoot_UndoAndReopen()
-    local round = QDKP2_BidM_UndoLastSettlementAndReopen()
-    if not round then
-        return;
+    if not QDKP2_BidM.LastSettlement then
+        status:SetText("There is no recent round settlement to undo.")
+        return
     end
-    activeRound = {
-        mode = round.mode,
-        phase = round.phase,
-        item = round.item
-    }
-    status:SetText("Settlement reverted. Round reopened.")
-    QDKP2_RaidLoot_Refresh()
+    QDKP2_OpenInputBox("Reason for reopening the round (leave blank for none)", function(reason)
+        local round = QDKP2_BidM_UndoLastSettlementAndReopen(reason)
+        if not round then return; end
+        activeRound = {
+            mode = round.mode,
+            phase = round.phase,
+            item = round.item
+        }
+        status:SetText("Settlement reverted. Round reopened.")
+        QDKP2_RaidLoot_Refresh()
+    end)
 end
 
 function QDKP2_RaidLoot_Refresh()
@@ -511,13 +552,14 @@ function QDKP2_RaidLoot_Refresh()
     else
         closeRoundButton:Disable();
     end
-    local selected = QDKP2GUI_Roster and QDKP2GUI_Roster.SelectedPlayers and QDKP2GUI_Roster.SelectedPlayers[1]
-    if selected and QDKP2_BidM.LIST and QDKP2_BidM.LIST[selected] then
+    local bidderCount = 0
+    for _ in pairs(QDKP2_BidM.LIST or {}) do bidderCount = bidderCount + 1; end
+    if (activeRound or inProgress) and bidderCount >= 2 then
         winnerButton:Enable()
     else
         winnerButton:Disable()
     end
-    if QDKP2_BidM.LastSettlement and QDKP2_BidM_CountdownCount then
+    if QDKP2_BidM.LastSettlement then
         reopenButton:Enable()
     else
         reopenButton:Disable();
@@ -553,6 +595,14 @@ function QDKP2GUI_RaidLoot_Toggle()
         QDKP2_RaidLoot_Refresh();
     end
 end
+
+-- Keep button states (Set Selected Winner, Close Round, Undo/Reopen) live as rolls/bids come in from chat
+-- CallbackHandler invokes handlers as (eventName, ...args), so the "kind" is the 2nd parameter, not the 1st
+QDKP2_Events:RegisterCallback("DATA_UPDATED", function(event, kind)
+    if frame:IsShown() and (kind == "roster" or kind == "all") then
+        QDKP2_RaidLoot_Refresh();
+    end
+end)
 
 SLASH_QDKP2_RRA1 = "/rra"
 SLASH_QDKP2_RRA2 = "/announce"

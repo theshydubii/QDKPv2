@@ -97,6 +97,11 @@
                 <AbsDimension x="10" y="-32"/>
               </Offset>
             </Anchor>
+            <Anchor relativePoint="TOPRIGHT" point="TOPRIGHT" >
+              <Offset>
+                <AbsDimension x="-10" y="-32"/>
+              </Offset>
+            </Anchor>
           </Anchors>
         </FontString>
       </Layer>
@@ -149,21 +154,18 @@
       </Anchor>
     </Anchors>
     <Frames>
-      <EditBox name="$parent_Data" inherits="InputBoxTemplate" id="15">
+      <EditBox name="$parent_Data" inherits="InputBoxTemplate" id="15" multiLine="true">
         <Size>
-          <AbsDimension x="190" y="25"/>
+          <AbsDimension x="240" y="60"/>
         </Size>
         <Anchors>
           <Anchor relativePoint="BOTTOM" point="BOTTOM">
             <Offset>
-              <AbsDimension x="0" y="36"/>
+              <AbsDimension x="0" y="46"/>
             </Offset>
           </Anchor>
         </Anchors>
         <Scripts>
-          <OnEnterPressed>
-            QDKP2_InputBox_OnEnter()
-          </OnEnterPressed>
           <OnEscapePressed>
             QDKP2_InputBox:Hide()
           </OnEscapePressed>
