@@ -172,7 +172,7 @@ end
 function QDKP2GUI_IsDoubleClick(class)
     local double
     local itemName = this:GetName()
-    if class.DoubleClick_Time and time() - class.DoubleClick_Time < 0.2 and class.DoubleClick_Name == itemName then
+    if class.DoubleClick_Time and time() - class.DoubleClick_Time < 0.35 and class.DoubleClick_Name == itemName then
         double = true;
     end
     class.DoubleClick_Time = time()

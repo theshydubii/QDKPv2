@@ -1761,6 +1761,7 @@
           </Anchor>
         </Anchors>
         <Scripts>
+          <OnLoad>self:Hide();</OnLoad>
           <OnClick>
             QDKP2GUI_Roster:Update()
           </OnClick>

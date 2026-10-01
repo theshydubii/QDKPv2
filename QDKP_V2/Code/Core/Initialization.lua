@@ -254,8 +254,9 @@ function QDKP2_OnLoad()
     -- I use these timers to refresh guild data (on regular basis)
     QDKP2_GuildRefTimerObj = QDKP2libs.Timer:ScheduleRepeatingTimer(QDKP2_TimeToRefresh, 60)
 
-    -- if i was managing a session but i'm not in the raid anymore, close the session.
-    if QDKP2_IsManagingSession() and (not QDKP2_IsRaidPresent() or not QDKP2_OfficerMode()) then
+    -- Preserve a saved managing session through login. If the player really left
+    -- the raid, the normal raid-update leave timer will close it after recovery.
+    if QDKP2_IsManagingSession() and not QDKP2_OfficerMode() then
         QDKP2_StopSession(true)
     end
 

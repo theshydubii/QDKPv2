@@ -12,8 +12,31 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 		QDKP2_RaidLootFrame:StripTextures()
 		QDKP2_RaidLootFrame:CreateBackdrop("Transparent")
 		if QDKP2_RaidLootItemButton then S:HandleButton(QDKP2_RaidLootItemButton) end
-		if QDKP2_RaidLootItemIDBox then S:HandleEditBox(QDKP2_RaidLootItemIDBox) end
+		if QDKP2_RaidLootItemIDBox then
+			S:HandleEditBox(QDKP2_RaidLootItemIDBox)
+			QDKP2_RaidLootItemIDBox:StripTextures()
+			QDKP2_RaidLootItemIDBox:CreateBackdrop("Transparent")
+		end
 		if QDKP2_RaidLootStatus then QDKP2_RaidLootStatus:SetTextColor(0.85, 0.85, 0.85) end
+		local raidLootButtons = {
+			QDKP2_RaidLootMS, QDKP2_RaidLootOS, QDKP2_RaidLootDE,
+			QDKP2_RaidLootBIS, QDKP2_RaidLootAlternative, QDKP2_RaidLootOptional,
+			QDKP2_RaidLootCloseRound, QDKP2_RaidLootWinner, QDKP2_RaidLootReopen,
+		}
+		for _, button in ipairs(raidLootButtons) do
+			if button then S:HandleButton(button) end
+		end
+		local raidLootChecks = {
+			QDKP2_RaidLootCheck_includeBIS,
+			QDKP2_RaidLootCheck_includeAlternative,
+			QDKP2_RaidLootCheck_includeOptional,
+			QDKP2_RaidLootCheck_bidding,
+			QDKP2_RaidLootCheck_bisOverMS,
+			QDKP2_RaidLootCheck_raidWarning,
+		}
+		for _, check in ipairs(raidLootChecks) do
+			if check then S:HandleCheckBox(check) end
+		end
 	end
 	--Roster Frame
 	QDKP2_Frame2:StripTextures()
@@ -49,7 +72,8 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 		local highlight = _G["QDKP2_frame2_entry" .. i .. "_Highlight"]
 		highlight:SetAllPoints(true)
 		highlight:SetTexture(E.Media.Textures.Highlight)
-		highlight:SetVertexColor(0.8, 0.6, 0.2, 0.5)
+		local valueColor = E.media and E.media.rgbvaluecolor or { 0.8, 0.6, 0.2 }
+		highlight:SetVertexColor(valueColor[1], valueColor[2], valueColor[3], 0.5)
 	end
 
 	S:HandleScrollBar(QDKP2_frame2_scrollbarScrollBar)
@@ -63,7 +87,6 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 	S:HandleButton(QDKP2_Frame2_SortBtn_deltatotal)
 	S:HandleButton(QDKP2_Frame2_SortBtn_deltaspent)
 	S:HandleButton(QDKP2_frame2_showRaid)
-	S:HandleButton(QDKP2_frame2_updateRoster)
 	S:HandleButton(QDKP2_Frame2_SortBtn_roll)
 	S:HandleButton(QDKP2_Frame2_SortBtn_bid)
 	S:HandleButton(QDKP2_Frame2_SortBtn_value)
@@ -132,7 +155,7 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 	QDKP2_Frame1_IMDKP_text:Point("LEFT", 4, 0)
 	QDKP2frame1_exportTXT:Size(60, 20)
 	QDKP2frame1_exportTXT:Point("Left", QDKP2frame1_upload, "RIGHT", 5, - 22)
-	QDKP2frame1_log:Point("CENTER", QDKP2_Frame1, "TOP", - 2, - 55)
+	QDKP2frame1_log:Point("CENTER", QDKP2_Frame1, "TOP", - 25, - 55)
 	QDKP2frame1_newSession:Point("RIGHT", QDKP2_Frame1, "TOP", - 2, - 103)
 	QDKP2frame1_backup:Point("RIGHT", QDKP2_frame1_BackupDate_Parent, "TOP", - 36, 5)
 	QDKP2frame1_restore:Point("LEFT", QDKP2_frame1_BackupDate_Parent, "TOP", - 35, 5)

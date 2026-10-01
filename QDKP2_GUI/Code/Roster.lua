@@ -442,7 +442,7 @@ function myClass.RightClickEntry(self)
     local name = QDKP2GUI_GetClickedEntry(myClass)
     if not IsControlKeyDown() and not myClass:isSelectedPlayer(name) then
         self:SelectPlayer(name)
-    elseif QDKP2GUI_IsDoubleClick(myClass) and QDKP2_IsInGuild(name) then
+    elseif QDKP2GUI_IsDoubleClick(myClass) and QDKP2_HasDKP(name) then
         QDKP2GUI_Log:ShowPlayer(myClass.SelectedPlayers[1])
         QDKP2GUI_CloseMenus()
         return
@@ -509,6 +509,7 @@ function myClass.SelectPlayer(self, name, multiple)
     end
     QDKP2GUI_CloseMenus()
     self:Refresh()
+    if QDKP2GUI_RaidLoot_Refresh then QDKP2GUI_RaidLoot_Refresh(); end
 end
 
 function myClass.isSelectedPlayer(self, name)
