@@ -265,6 +265,7 @@ local function notify_winner(winner)
         QDKP2_RollPhase = nil
         QDKP2_BidM_CloseBid(true)
         QDKP2_BidM.Phase = nil
+        QDKP2_BidM.LastSettlement = nil
         QDKP2_Events:Fire("DATA_UPDATED", "roster")
         if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoClose and QDKP2_RaidLootFrame then
             QDKP2_RaidLootFrame:Hide()
@@ -345,6 +346,7 @@ local function notify_winner(winner)
     end
     QDKP2_BidM_CloseBid(true)
     QDKP2_BidM.Phase = nil
+    QDKP2_BidM.LastSettlement = nil
     if QDKP2_RaidLootSettings and QDKP2_RaidLootSettings.autoClose and QDKP2_RaidLootFrame then
         QDKP2_RaidLootFrame:Hide()
     end
@@ -362,7 +364,7 @@ function QDKP2_BidM_Winner(winner, autoSettle, skipCountdown)
         QDKP2_BidM_CloseBid()
     end
     QDKP2_BidM.LIST[winner].autoSettle = autoSettle == true
-    if autoSettle then
+    if autoSettle or QDKP2_BidM.LIST[winner].rollPhase then
         QDKP2_BidM.LastSettlement = {
             winner = winner,
             mode = QDKP2_BidM.LIST[winner].rollPhase and "roll" or "bid",
@@ -380,7 +382,7 @@ end
 
 function QDKP2_BidM_UndoLastSettlementAndReopen()
     local round = QDKP2_BidM.LastSettlement
-    if not round then
+    if not round or not QDKP2_BidM_CountdownCount then
         QDKP2_Msg("There is no recent round settlement to undo.", "WARNING")
         return
     end

@@ -35,6 +35,7 @@
         "StaticPopup_Show",
         "UISpecialFrames",
         "DressUpItemLink",
-        "ShowInspectCursor"
+        "ShowInspectCursor",
+        "ChatFrame_AddMessageEventFilter"
     ]
 }

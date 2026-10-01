@@ -463,7 +463,7 @@ function QDKP2_RaidLoot_CloseRound()
         elseif tied then
             status:SetText("Top bid is tied. Select the winner in the Bid Manager list.")
         else
-            QDKP2_BidM_Winner(winner, true, true)
+            QDKP2_BidM_Winner(winner, true, false)
             status:SetText("Winner selected: " .. winner .. " (" .. tostring(value) .. ")")
         end
     end
@@ -477,7 +477,7 @@ function QDKP2_RaidLoot_SetSelectedWinner()
         return
     end
     local bid = QDKP2_BidM.LIST[selected]
-    QDKP2_BidM_Winner(selected, not bid.rollPhase, true)
+    QDKP2_BidM_Winner(selected, not bid.rollPhase, false)
     status:SetText("Winner selected: " .. selected)
     QDKP2_RaidLoot_Refresh()
 end
@@ -517,7 +517,7 @@ function QDKP2_RaidLoot_Refresh()
     else
         winnerButton:Disable()
     end
-    if QDKP2_BidM.LastSettlement then
+    if QDKP2_BidM.LastSettlement and QDKP2_BidM_CountdownCount then
         reopenButton:Enable()
     else
         reopenButton:Disable();

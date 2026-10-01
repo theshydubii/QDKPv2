@@ -38,7 +38,41 @@ function QDKP2_OD(text, sender)
     if not P1 then
         return;
     end
-    if P1 == "?dkp" then
+    if P1 == "?main" or P1 == "?link" then
+        if not QDKP2_OfficerMode() or not QDKP2_ManagementMode() then
+            return {"QDKP2 - Alt linking is available only while the session manager is managing the raid."}
+        end
+        if not P2 then
+            return {"QDKP2 - Usage: ?main <main name>"}
+        end
+        local main = QDKP2_FormatName(P2)
+        if QDKP2_IsAlt(sender) or QDKP2_TempAlts[sender] then
+            return {"QDKP2 - " .. sender .. " is already linked. Use ?unlink first."}
+        end
+        if not QDKP2_IsInRaid(sender) then
+            return {"QDKP2 - You must be in the current raid to link an alt."}
+        end
+        if not QDKP2_IsInGuild(main) or QDKP2_IsAlt(main) then
+            return {"QDKP2 - " .. main .. " is not a valid guild main. Zero DKP is allowed, but the main must be in QDKP's roster."}
+        end
+        if QDKP2_TempAltLink(sender, main) then
+            return {"QDKP2 - Your character is temporarily linked to " .. main .. " for this session."}
+        end
+        return {"QDKP2 - The temporary alt link could not be created."}
+
+    elseif P1 == "?unlink" or P1 == "?unmain" then
+        if not QDKP2_OfficerMode() or not QDKP2_ManagementMode() then
+            return {"QDKP2 - Alt unlinking is available only while the session manager is managing the raid."}
+        end
+        if QDKP2_TempAlts[sender] then
+            local main = QDKP2_TempAlts[sender]
+            if QDKP2_TempAltClear(sender) then
+                return {"QDKP2 - Temporary link cleared. Your character is no longer linked to " .. tostring(main) .. "."}
+            end
+        end
+        return {"QDKP2 - No temporary alt link was found for your character."}
+
+    elseif P1 == "?dkp" then
         if not QDKP2_IsInGuild(sender) and not QDKP_OD_EXT then
             return {"QDKP2 - Only GuildMembers can use the On-Demand whisper system."}
         end
@@ -278,6 +312,8 @@ function QDKP2_OD(text, sender)
         if QDKP2_ROD then
             table.insert(output, '"?log <name> all/current"');
         end
+        table.insert(output, '"?main <main name>" (raid manager only)');
+        table.insert(output, '"?unlink" (raid manager only)');
         -- if QDKP2_POD then table.insert(output, '"?prices <keywords>"'); end
         -- if QDKP2_AOD then table.insert(output, '"?award <keywords>"'); end
         if table.getn(output) == 1 then

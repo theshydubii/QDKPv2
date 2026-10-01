@@ -221,8 +221,7 @@ function QDKP2_OnLoad()
     end
 
     if QDKP2_ODS_ENABLE then
-        QDKP2_OriginalChatMsgHandler = ChatFrame_MessageEventHandler -- hook the MessageEvent to hide On-Demand whispers
-        ChatFrame_MessageEventHandler = QDKP2_ChatMsgHandler
+        QDKP2_InstallWhisperFilters()
     end
 
     QDKP2_ReadDatabase()

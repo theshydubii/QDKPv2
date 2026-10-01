@@ -38,6 +38,27 @@ QDKP2_Instances = {{
     DKP_25H = 0
 }}
 
+-- Classic/TBC raid instances. Configure these defaults if your guild awards them.
+local QDKP2_PreWotLKInstances = {
+    { name = "Molten Core", DKP_40N = 0 },
+    { name = "Blackwing Lair", DKP_40N = 0 },
+    { name = "Ruins of Ahn'Qiraj", DKP_20N = 0 },
+    { name = "The Ruins of Ahn'Qiraj", DKP_20N = 0 },
+    { name = "Ahn'Qiraj", DKP_40N = 0 },
+    { name = "Zul'Gurub", DKP_20N = 0 },
+    { name = "Karazhan", DKP_10N = 0 },
+    { name = "Gruul's Lair", DKP_25N = 0 },
+    { name = "Magtheridon's Lair", DKP_25N = 0 },
+    { name = "Serpentshrine Cavern", DKP_25N = 0 },
+    { name = "The Eye", DKP_25N = 0 },
+    { name = "The Battle for Mount Hyjal", DKP_25N = 0 },
+    { name = "Black Temple", DKP_25N = 0 },
+    { name = "Sunwell Plateau", DKP_25N = 0 },
+}
+for _, instance in ipairs(QDKP2_PreWotLKInstances) do
+    table.insert(QDKP2_Instances, instance)
+end
+
 -- The following table lets you set the DKP award to give to the raid when a given boss is slain,
 -- overriding the instance default value specified in QDKP2_Instances.
 -- If = nil, the award will be set as the instance default. To override, change nil to the award you wish.
@@ -101,6 +122,72 @@ QDKP2_Bosses = {{
     DKP_25N = nil,
     DKP_25H = nil
 }, {
+    name = "Ignis the Furnace Master",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "Razorscale",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "XT-002 Deconstructor",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "Assembly of Iron",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "Kologarn",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "Auriaya",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "Hodir",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "Thorim",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "Freya",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "Mimiron",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
+    name = "General Vezax",
+    DKP_10N = nil,
+    DKP_10H = nil,
+    DKP_25N = nil,
+    DKP_25H = nil
+}, {
     name = "Yogg-Saron",
     DKP_10N = nil,
     DKP_10H = nil,
@@ -119,6 +206,48 @@ QDKP2_Bosses = {{
     DKP_25N = nil,
     DKP_25H = nil
 }}
+
+-- Additional WotLK 3.3.5a raid encounters. Nil values inherit the instance default.
+-- Existing entries above remain authoritative if a guild has customized them.
+local QDKP2_AdditionalRaidBosses = {
+    -- Naxxramas
+    "Anub'Rekhan", "Grand Widow Faerlina", "Maexxna", "Noth the Plaguebringer",
+    "Heigan the Unclean", "Loatheb", "Instructor Razuvious", "Gothik the Harvester",
+    "The Four Horsemen", "Patchwerk", "Grobbulus", "Gluth", "Thaddius", "Sapphiron",
+    -- Ulduar encounter aliases used by different boss mods/clients
+    "The Iron Council",
+    -- Trial of the Crusader
+    "Northrend Beasts", "Lord Jaraxxus", "Faction Champions", "Val'kyr Twins", "The Twin Val'kyr", "Anub'arak",
+    -- Icecrown Citadel
+    "Lord Marrowgar", "Lady Deathwhisper", "Icecrown Gunship Battle", "Deathbringer Saurfang",
+    "Festergut", "Rotface", "Professor Putricide", "Blood Prince Council",
+    "Blood-Queen Lana'thel", "Valithria Dreamwalker", "Sindragosa",
+    -- Ruby Sanctum
+    "Saviana Ragefire", "Baltharus the Warborn", "General Zarithrian", "Halion",
+    -- Classic/TBC
+    "Lucifron", "Magmadar", "Gehennas", "Garr", "Baron Geddon", "Shazzrah", "Sulfuron Harbinger", "Majordomo Executus", "Ragnaros",
+    "Razorgore the Untamed", "Vaelastrasz the Corrupt", "Broodlord Lashlayer", "Firemaw", "Ebonroc", "Flamegor", "Chromaggus", "Nefarian",
+    "Kurinnaxx", "General Rajaxx", "Moam", "Buru the Gorger", "Ayamiss the Hunter", "Ossirian the Unscarred",
+    "The Prophet Skeram", "Battleguard Sartura", "Fankriss the Unyielding", "Viscidus", "Princess Huhuran", "Twin Emperors", "Ouro", "C'Thun",
+    "High Priest Venoxis", "High Priestess Jeklik", "High Priestess Mar'li", "Bloodlord Mandokir", "Jin'do the Hexxer", "Gahz'ranka", "High Priestess Arlokk", "Thekal", "Hakkar",
+    "Attumen the Huntsman", "Moroes", "Maiden of Virtue", "Opera Hall", "The Curator", "Terestian Illhoof", "Shade of Aran", "Netherspite", "Chess Event", "Prince Malchezaar",
+    "Gruul the Dragonkiller", "High King Maulgar", "Magtheridon",
+    "Hydross the Unstable", "The Lurker Below", "Leotheras the Blind", "Fathom-Lord Karathress", "Morogrim Tidewalker", "Lady Vashj",
+    "Al'ar", "Void Reaver", "High Astromancer Solarian", "Kael'thas Sunstrider",
+    "Rage Winterchill", "Anetheron", "Kaz'rogal", "Azgalor", "Archimonde",
+    "High Warlord Naj'entus", "Supremus", "Shade of Akama", "Teron Gorefiend", "Gurtogg Bloodboil", "Reliquary of Souls", "Mother Shahraz", "The Illidari Council", "Illidan Stormrage",
+    "Kalecgos", "Brutallus", "Felmyst", "Eredar Twins", "M'uru", "Kil'jaeden",
+}
+
+for _, bossName in ipairs(QDKP2_AdditionalRaidBosses) do
+    table.insert(QDKP2_Bosses, {
+        name = bossName,
+        DKP_10N = nil,
+        DKP_10H = nil,
+        DKP_25N = nil,
+        DKP_25H = nil,
+    })
+end
 
 ---------------------------------------------------------------------------------------------
 
@@ -325,7 +454,7 @@ QDKP2_BidM_AnnounceClose = true -- If true, announce when bidding or a roll phas
 
 QDKP2_BidM_CountStop = true -- Do you want to trigger a countdown when you announce a winner?
 QDKP2_BidM_CatchRoll = true -- if true, QDKP will catch rolls.
-QDKP2_BidM_CountAmount = 3 -- The countdown length. QDKP will tick with 2 seconds delay.
+QDKP2_BidM_CountAmount = 5 -- Countdown length: 5-4-3-2-1. Set 0 for instant settlement.
 QDKP2_BidM_AllowMultipleBid = true -- can a player modify a bid? if false, it will be a one shot bid only. /roll are always one shot only.
 QDKP2_BidM_AllowLesserBid = false -- if false, players won't be able to put a smaller bid than the previous one.
 QDKP2_BidM_HideWispBids = false -- if true, the whispers you get from your guild members for bids will not be shown.

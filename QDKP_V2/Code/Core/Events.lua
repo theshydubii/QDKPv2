@@ -244,29 +244,25 @@ function QDKP2_OnGroupChat(arg1, arg2, arg3)
     end
 end
 
--- chat handler. This hooks the standard chat handler. Used to intercept QDKP2 OD whispers.
-function QDKP2_ChatMsgHandler(...)
-    if not arg1 or not arg2 then
-        QDKP2_OriginalChatMsgHandler(...);
-        return;
+function QDKP2_InstallWhisperFilters()
+    if QDKP2_WhisperFiltersInstalled or not ChatFrame_AddMessageEventFilter then
+        return
     end
-    if event == "CHAT_MSG_WHISPER_INFORM" and QDKP2suppressWhispers['>' .. arg2 .. arg1] then
-        QDKP2suppressWhispers['>' .. arg2 .. arg1] = nil
-        QDKP2_Debug(3, "Core", "OD answer intercepted!")
-        return
-    elseif event == "CHAT_MSG_WHISPER" and QDKP2suppressWhispers['<' .. arg2 .. arg1] then
-        QDKP2suppressWhispers['<' .. arg2 .. arg1] = nil
-        QDKP2_Debug(2, "Core", "OD whisper intercepted!")
-        return
-    elseif event == "CHAT_MSG_WHISPER" and QDKP2processedWhispers ~= time() .. arg2 .. arg1 then
-        QDKP2_OnEvent(...) -- this is because sometime ChatMsgHandler get called before the CHAT_MSG_WHISPER event.
-        if QDKP2suppressWhispers['<' .. arg2 .. arg1] then
-            QDKP2_Debug(2, "Core", "Tricky OD whisper fixed!")
-            QDKP2suppressWhispers['<' .. arg2 .. arg1] = nil
-            return
+    ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", function(_, _, message, sender)
+        local key = '<' .. tostring(sender) .. tostring(message)
+        if QDKP2suppressWhispers[key] then
+            QDKP2suppressWhispers[key] = nil
+            return true
         end
-    end
-    QDKP2_OriginalChatMsgHandler(...)
+    end)
+    ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER_INFORM", function(_, _, message, recipient)
+        local key = '>' .. tostring(recipient) .. tostring(message)
+        if QDKP2suppressWhispers[key] then
+            QDKP2suppressWhispers[key] = nil
+            return true
+        end
+    end)
+    QDKP2_WhisperFiltersInstalled = true
 end
 
 -- This is to connect to the Deadly Boss Mod for boss kills.
