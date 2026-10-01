@@ -8,6 +8,13 @@ if not AS:IsAddonLODorEnabled("QDKP2_GUI") then return end
 
 S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 	if not E.private.addOnSkins.QDKP2_GUI then return end
+	if QDKP2_RaidLootFrame then
+		QDKP2_RaidLootFrame:StripTextures()
+		QDKP2_RaidLootFrame:CreateBackdrop("Transparent")
+		if QDKP2_RaidLootItemButton then S:HandleButton(QDKP2_RaidLootItemButton) end
+		if QDKP2_RaidLootItemIDBox then S:HandleEditBox(QDKP2_RaidLootItemIDBox) end
+		if QDKP2_RaidLootStatus then QDKP2_RaidLootStatus:SetTextColor(0.85, 0.85, 0.85) end
+	end
 	--Roster Frame
 	QDKP2_Frame2:StripTextures()
 	QDKP2_Frame2:CreateBackdrop("Transparent")
@@ -21,8 +28,6 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 	QDKP2_frame2_title_net:Size(60, 14)
 	QDKP2_frame2_title_total:Size(60, 14)
 	QDKP2_frame2_title_spent:Size(60, 14)
-	QDKP2_Frame2_Bid_Item:ClearAllPoints()
-	QDKP2_Frame2_Bid_Item:Point("BottomLeft", QDKP2_frame2_showRaid, "BottomLeft", - 60, - 2)
 
 	for i = 10, 29 do
 		local child = select(i, QDKP2_Frame2:GetChildren())
@@ -59,12 +64,9 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 	S:HandleButton(QDKP2_Frame2_SortBtn_deltaspent)
 	S:HandleButton(QDKP2_frame2_showRaid)
 	S:HandleButton(QDKP2_frame2_updateRoster)
-	S:HandleButton(QDKP2_Frame2_Bid_Button)
-	S:HandleButton(QDKP2_Frame2_Bid_ButtonWin)
 	S:HandleButton(QDKP2_Frame2_SortBtn_roll)
 	S:HandleButton(QDKP2_Frame2_SortBtn_bid)
 	S:HandleButton(QDKP2_Frame2_SortBtn_value)
-	S:HandleEditBox(QDKP2_Frame2_Bid_Item)
 	S:HandleCheckBox(QDKP2frame2_selectList_guild)
 	if QDKP2frame2_selectList_guildOnline then
 		S:HandleCheckBox(QDKP2frame2_selectList_guildOnline)

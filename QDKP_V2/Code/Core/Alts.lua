@@ -1,6 +1,5 @@
 -- Copyright 2010 Riccardo Belloli (belloli@email.it)
 -- This file is a part of QDKP_V2 (see about.txt in the Addon's root folder)
-
 --             ## CORE FUNCTIONS ##
 --               Alts functions
 --
@@ -21,172 +20,306 @@
 --      QDKP2_IsMainAlreadyProcessed(name): Returns true if you have already called QDKP2_ProcessedMain(name) for this main.
 --      QDKP2_AltsStillToCome(name,list,index): Returns true if you still have an alt of <name> to process ahead of index <i>.
 -- Reading file to table
+QDKP2_TempAlts = {}
 
-function QDKP2_MakeAlt(alt,main,sure)
--- Function that makes <alt> an alt of <main>. Sure is to avoid the "Are you sure?" dialog.
-  if not QDKP2_OfficerMode() then QDKP2_Msg(QDKP2_LOC_NoRights,"ERROR")(); return; end
-  if QDKP2_ManagementMode() then QDKP2_Msg("You can't add or clear alt relations while you are managing a session.","WARNING"); return; end
-  if not alt or alt=="" then
-    QDKP2_Debug(1,"Core","Can't redefine alt relation: <alt> is nil.")
-    return
-  end
-  alt=QDKP2_FormatName(alt)
-  if not QDKP2_IsInGuild(alt) then
-    QDKP2_Msg(alt.." is not a valid Guildmember.","ERROR")
-    return
-  end
-  if not main then
-    QDKP2_Debug(2,"Core","Clearing alt relation for "..alt)
-    if not QDKP2_IsAlt(alt) then QDKP2_Msg(alt.." is not an alt."); return; end
-    QDKP2altsRestore[alt]=""
+function QDKP2_MakeAlt(alt, main, sure)
+    -- Function that makes <alt> an alt of <main>. Sure is to avoid the "Are you sure?" dialog.
+    if not QDKP2_OfficerMode() then
+        QDKP2_Msg(QDKP2_LOC_NoRights, "ERROR")();
+        return;
+    end
+    if QDKP2_ManagementMode() then
+        QDKP2_Msg("You can't add or clear alt relations while you are managing a session.", "WARNING");
+        return;
+    end
+    if not alt or alt == "" then
+        QDKP2_Debug(1, "Core", "Can't redefine alt relation: <alt> is nil.")
+        return
+    end
+    alt = QDKP2_FormatName(alt)
+    if not QDKP2_IsInGuild(alt) then
+        QDKP2_Msg(alt .. " is not a valid Guildmember.", "ERROR")
+        return
+    end
+    if not main then
+        QDKP2_Debug(2, "Core", "Clearing alt relation for " .. alt)
+        if not QDKP2_IsAlt(alt) then
+            QDKP2_Msg(alt .. " is not an alt.");
+            return;
+        end
+        QDKP2altsRestore[alt] = ""
 
-    --QDKP2alts[alt]=nil
-  else
-    if not sure then
-      local mess="You are defining $ALT an alt\ncharacter of $MAIN.\nDo you wish to continue?"
-      mess=string.gsub(mess,"$ALT",alt)
-      mess=string.gsub(mess,"$MAIN",main)
-      QDKP2_AskUser(mess, QDKP2_MakeAlt, alt, main, true)
-      return
-    end
-    QDKP2_Debug(2,"Core","Making "..alt.." an alt of "..main)
-    main=QDKP2_FormatName(main)
-    if not QDKP2_IsInGuild(main) then
-      QDKP2_Msg(main.." is not a valid Guildmember.","ERROR")
-      return
-    end
-    if main==alt then
-      QDKP2_Msg("An alt's Main must be different from the alt himself.","ERROR")
-      return
-    end
-    if QDKP2_IsAlt(main) then
-      QDKP2_Msg("You can't define an alt as a Main.","ERROR")
-      return
-    end
-    local altTotal=QDKP2_GetTotal(alt)
-    local altSpent=QDKP2_GetSpent(alt)
-    local altHours=QDKP2_GetHours(alt)
-    local function ApplyAltRelation()
-      QDKP2altsRestore[alt]=main
-      QDKP2note[alt]=nil
-      QDKP2stored[alt]=nil
-      QDKP2_DownloadGuild()
-      QDKP2_Msg("Upload Changes to store the modifications.")
-    end
-    if not QDKP2_IsAlt(alt) and (altTotal~=0 or altSpent~=0 or altHours~=0) then
-      local mess="$ALT's DKP pool wasn't empty.\nDo you want to merge them with\n$MAIN's?\n($ALT's net: "..tostring(altTotal-altSpent).." DKP).\nDeclining cancels the alt link."
-      mess=string.gsub(mess,"$ALT",alt)
-      mess=string.gsub(mess,"$MAIN",main)
-      QDKP2_AskUser(mess, function(main, alt, tot, spent, hours)
+        -- QDKP2alts[alt]=nil
+    else
+        if not sure then
+            local mess = "You are defining $ALT an alt\ncharacter of $MAIN.\nDo you wish to continue?"
+            mess = string.gsub(mess, "$ALT", alt)
+            mess = string.gsub(mess, "$MAIN", main)
+            QDKP2_AskUser(mess, QDKP2_MakeAlt, alt, main, true)
+            return
+        end
+        QDKP2_Debug(2, "Core", "Making " .. alt .. " an alt of " .. main)
+        main = QDKP2_FormatName(main)
+        if not QDKP2_IsInGuild(main) then
+            QDKP2_Msg(main .. " is not a valid Guildmember.", "ERROR")
+            return
+        end
+        if main == alt then
+            QDKP2_Msg("An alt's Main must be different from the alt himself.", "ERROR")
+            return
+        end
+        if QDKP2_IsAlt(main) then
+            QDKP2_Msg("You can't define an alt as a Main.", "ERROR")
+            return
+        end
+        local altTotal = QDKP2_GetTotal(alt)
+        local altSpent = QDKP2_GetSpent(alt)
+        local altHours = QDKP2_GetHours(alt)
+        local function ApplyAltRelation()
+            QDKP2altsRestore[alt] = main
+            QDKP2note[alt] = nil
+            QDKP2stored[alt] = nil
+            QDKP2_DownloadGuild()
+            QDKP2_Msg("Upload Changes to store the modifications.")
+        end
+        if not QDKP2_IsAlt(alt) and (altTotal ~= 0 or altSpent ~= 0 or altHours ~= 0) then
+            local mess = "$ALT's DKP pool wasn't empty.\nDo you want to merge them with\n$MAIN's?\n($ALT's net: " ..
+                             tostring(altTotal - altSpent) .. " DKP).\nDeclining cancels the alt link."
+            mess = string.gsub(mess, "$ALT", alt)
+            mess = string.gsub(mess, "$MAIN", main)
+            QDKP2_AskUser(mess, function(main, alt, tot, spent, hours)
+                ApplyAltRelation()
+                QDKP2_AddTotals(main, tot, spent, hours, alt .. "'s DKP merging", true, nil, nil, true)
+                QDKP2_RefreshAll()
+            end, main, alt, altTotal, altSpent, altHours)
+            return
+        end
+
         ApplyAltRelation()
-        QDKP2_AddTotals(main,tot,spent,hours,alt.."'s DKP merging",true,nil,nil,true)
-        QDKP2_RefreshAll()
-      end, main, alt, altTotal, altSpent, altHours)
-      return
     end
-
-    ApplyAltRelation()
-  end
-  if not main then
-    QDKP2_DownloadGuild()
-    QDKP2_Msg("Upload Changes to store the modifications.")
-  end
+    if not main then
+        QDKP2_DownloadGuild()
+        QDKP2_Msg("Upload Changes to store the modifications.")
+    end
 end
 
 function QDKP2_ClearAlt(alt)
---dummy of QDKP2_MakeAlt that clears the alt status.
-  return QDKP2_MakeAlt(alt)
+    -- dummy of QDKP2_MakeAlt that clears the alt status.
+    return QDKP2_MakeAlt(alt)
 end
 
+function QDKP2_TempAltLink(alt, main)
+    if not QDKP2_OfficerMode() then
+        QDKP2_Msg(QDKP2_LOC_NoRights, "ERROR")
+        return
+    end
+    if not alt or not main then
+        QDKP2_Msg("Specify both the raid alt and its main.", "WARNING")
+        return
+    end
+    alt = QDKP2_FormatName(alt)
+    main = QDKP2_GetMain(QDKP2_FormatName(main))
+    if alt == "" or main == "" then
+        QDKP2_Msg("Specify both the raid alt and its main.", "WARNING")
+        return
+    end
+    if alt == main then
+        QDKP2_Msg("An alt's main must be a different character.", "ERROR")
+        return
+    end
+    if QDKP2_IsInGuild(alt) then
+        QDKP2_Msg(alt .. " already has a guild or external DKP record.", "WARNING")
+        return
+    end
+    if not QDKP2_IsInRaid(alt) then
+        QDKP2_Msg(alt .. " must be in your current raid or party.", "WARNING")
+        return
+    end
+    if not QDKP2_IsInGuild(main) or QDKP2_IsAlt(main) then
+        QDKP2_Msg(main .. " must be listed as a main in QDKP. Zero DKP is okay.", "ERROR")
+        return
+    end
+    if QDKP2_TempAlts[alt] then
+        QDKP2_Msg(alt .. " is already temporarily linked to " .. QDKP2_TempAlts[alt] .. ". Clear it first.", "WARNING")
+        return
+    end
+    QDKP2_TempAlts[alt] = main
+    QDKP2_UpdateRaid()
+    QDKP2_Events:Fire("DATA_UPDATED", "all")
+    QDKP2_Msg(alt .. " is temporarily linked to " .. main .. " for this session.")
+    return true
+end
+
+function QDKP2_TempAltClear(alt)
+    if not QDKP2_OfficerMode() then
+        QDKP2_Msg(QDKP2_LOC_NoRights, "ERROR")
+        return
+    end
+    if not alt then
+        QDKP2_Msg("Specify the raid alt to unlink.", "WARNING")
+        return
+    end
+    alt = QDKP2_FormatName(alt)
+    if not QDKP2_TempAlts[alt] then
+        QDKP2_Msg(alt .. " has no temporary alt link.", "WARNING")
+        return
+    end
+    QDKP2_TempAlts[alt] = nil
+    QDKP2_UpdateRaid()
+    QDKP2_Events:Fire("DATA_UPDATED", "all")
+    QDKP2_Msg("Temporary alt link cleared for " .. alt .. ".")
+    return true
+end
+
+function QDKP2_SaveAlt(alt, main)
+    if not QDKP2_OfficerMode() then
+        QDKP2_Msg(QDKP2_LOC_NoRights, "ERROR")
+        return
+    end
+    if not alt or not main then
+        QDKP2_Msg("Specify both the alt and its main.", "WARNING")
+        return
+    end
+    alt = QDKP2_FormatName(alt)
+    main = QDKP2_GetMain(QDKP2_FormatName(main))
+    if alt == "" or main == "" or alt == main then
+        QDKP2_Msg("Specify a valid alt and a different main.", "WARNING")
+        return
+    end
+    if not QDKP2_IsInGuild(main) or QDKP2_IsAlt(main) then
+        QDKP2_Msg(main .. " must be listed as a main in QDKP. Zero DKP is okay.", "ERROR")
+        return
+    end
+    local tempMain = QDKP2_TempAlts[alt]
+    if tempMain and not QDKP2_IsInGuild(alt) then
+        if QDKP2_GetMain(tempMain) ~= main then
+            QDKP2_Msg(alt .. " is temporarily linked to a different main.", "ERROR")
+            return
+        end
+        if not QDKP2_NewExternal(alt) then
+            return;
+        end
+        QDKP2_TempAlts[alt] = nil
+        QDKP2altsRestore[alt] = main
+        QDKP2_DownloadGuild()
+        QDKP2_Events:Fire("DATA_UPDATED", "all")
+        QDKP2_Msg(alt .. " is now saved as an alt of " .. main .. ".")
+        return true
+    end
+    if QDKP2_ManagementMode() then
+        QDKP2_Msg("Use tempalt during a session. Save this character after the session ends.", "WARNING")
+        return
+    end
+    if not QDKP2_IsInGuild(alt) then
+        if not QDKP2_NewExternal(alt) then
+            return;
+        end
+    end
+    QDKP2_TempAlts[alt] = nil
+    return QDKP2_MakeAlt(alt, main)
+end
 
 function QDKP2_GetMain(name)
--- returns the main of a character. if he's not an alt, then returns the name as it is.
--- is recursive, meaning that if a main is an alt of someone, will return the "main" main.
--- note that this is a safety measure, you should avoid that situation.
-  local oldName=""
-  local visited={}
-  while name do
-    if visited[name] then
-      QDKP2_Debug(1,"Core","Alt loop detected between "..tostring(oldName).." and "..tostring(name)..".")
-      return name
+    -- returns the main of a character. if he's not an alt, then returns the name as it is.
+    -- is recursive, meaning that if a main is an alt of someone, will return the "main" main.
+    -- note that this is a safety measure, you should avoid that situation.
+    local oldName = ""
+    local visited = {}
+    while name do
+        if visited[name] then
+            QDKP2_Debug(1, "Core", "Alt loop detected between " .. tostring(oldName) .. " and " .. tostring(name) .. ".")
+            return name
+        end
+        visited[name] = true
+        oldName = name
+        name = QDKP2_TempAlts[name] or QDKP2alts[name]
     end
-    visited[name]=true
-    oldName=name
-    name=QDKP2alts[name]
-  end
-  return name or oldName
+    return name or oldName
 end
 
 function QDKP2_IsAlt(name)
---returns the name of the main if is a alt, nil otherwhise.
-  return QDKP2alts[name]
+    -- returns the name of the main if is a alt, nil otherwhise.
+    return QDKP2_TempAlts[name] or QDKP2alts[name]
+end
+
+function QDKP2_HasDKP(name)
+    if QDKP2_IsInGuild(name) then
+        return true;
+    end
+    local main = QDKP2_TempAlts[name]
+    if main and QDKP2_IsInGuild(QDKP2_GetMain(main)) then
+        return true;
+    end
 end
 
 function QDKP2_CleanAltData()
-  local function cleanTable(altTable)
-    for alt, main in pairs(altTable) do
-      local visited = {}
-      local current = main
-      while current and altTable[current] do
-        if current == alt or visited[current] then
-          QDKP2_Debug(1, "Core", "Clearing cyclic alt relation for " .. tostring(alt) .. ".")
-          altTable[alt] = nil
-          break
+    local function cleanTable(altTable)
+        for alt, main in pairs(altTable) do
+            local visited = {}
+            local current = main
+            while current and altTable[current] do
+                if current == alt or visited[current] then
+                    QDKP2_Debug(1, "Core", "Clearing cyclic alt relation for " .. tostring(alt) .. ".")
+                    altTable[alt] = nil
+                    break
+                end
+                visited[current] = true
+                current = altTable[current]
+            end
         end
-        visited[current] = true
-        current = altTable[current]
-      end
     end
-  end
 
-  for alt, main in pairs(QDKP2altsRestore) do
-    if alt == main then
-      QDKP2_Debug(1, "Core", "Clearing self-linked alt relation for " .. tostring(alt) .. ".")
-      QDKP2altsRestore[alt] = ""
+    for alt, main in pairs(QDKP2altsRestore) do
+        if alt == main then
+            QDKP2_Debug(1, "Core", "Clearing self-linked alt relation for " .. tostring(alt) .. ".")
+            QDKP2altsRestore[alt] = ""
+        end
     end
-  end
-  cleanTable(QDKP2alts)
-  cleanTable(QDKP2altsRestore)
+    cleanTable(QDKP2alts)
+    cleanTable(QDKP2altsRestore)
 end
 
---Get a formatted label for player ("name" if not alt, "name (main)" if alt)
+-- Get a formatted label for player ("name" if not alt, "name (main)" if alt)
 function QDKP2_GetName(name)
-  if QDKP2alts[name] then return name.." ("..QDKP2_GetMain(name)..")"
-  else return name
-  end
+    if QDKP2_IsAlt(name) then
+        return name .. " (" .. QDKP2_GetMain(name) .. ")"
+    else
+        return name
+    end
 end
 
 --------------
---I use these function in the awards, because i don't want to make double entries if 2 characters of the same player are in the same raid (alts-main or alt-alt)
+-- I use these function in the awards, because i don't want to make double entries if 2 characters of the same player are in the same raid (alts-main or alt-alt)
 
 function QDKP2_DoubleCheckInit()
---resets the table. used when initiating a new award
-  QDKP2_DoubleCheckTable={}
+    -- resets the table. used when initiating a new award
+    QDKP2_DoubleCheckTable = {}
 end
 
 function QDKP2_IsMainAlreadyProcessed(name)
---this function will return true if i have already awarded the main or an alt
-  local main=QDKP2_GetMain(name)
-  return QDKP2_DoubleCheckTable[main]
+    -- this function will return true if i have already awarded the main or an alt
+    local main = QDKP2_GetMain(name)
+    return QDKP2_DoubleCheckTable[main]
 end
 
 function QDKP2_ProcessedMain(name)
---this function will add the main in the table of the already processed mains
-  local main=QDKP2_GetMain(name)
-  QDKP2_DoubleCheckTable[main]=true
+    -- this function will add the main in the table of the already processed mains
+    local main = QDKP2_GetMain(name)
+    QDKP2_DoubleCheckTable[main] = true
 end
 
-function QDKP2_AltsStillToCome(name,list,index)
---this function will see if there are alts still to be processed. i use it when an award is being lost.
-  local main=QDKP2_GetMain(name)
-  index=index or 1
-  for i=index,table.getn(list) do
-    local listName=list[i]
-    if listName~=name then
-      local listMain=QDKP2_GetMain(listName)
-      if listMain==main then return true; end
+function QDKP2_AltsStillToCome(name, list, index)
+    -- this function will see if there are alts still to be processed. i use it when an award is being lost.
+    local main = QDKP2_GetMain(name)
+    index = index or 1
+    for i = index, table.getn(list) do
+        local listName = list[i]
+        if listName ~= name then
+            local listMain = QDKP2_GetMain(listName)
+            if listMain == main then
+                return true;
+            end
+        end
     end
-  end
 end
-
 

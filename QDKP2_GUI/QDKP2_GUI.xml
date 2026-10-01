@@ -420,7 +420,7 @@
         <Anchors>
           <Anchor relativePoint="TOP" point="CENTER" >
             <Offset>
-              <AbsDimension x="-25" y="-55"/>
+              <AbsDimension x="-45" y="-55"/>
             </Offset>
           </Anchor>
         </Anchors>
@@ -1335,6 +1335,14 @@
             <Anchor point="TOPRIGHT" relativeTo="QDKP2_Frame2_BiddingZone"/>
           </Anchors>
         </FontString>
+        <FontString name="$parent_RollStatus" inherits="GameFontHighlightSmall" justifyH="LEFT" text="">
+          <Size><AbsDimension x="260" y="16"/></Size>
+          <Anchors>
+            <Anchor point="BOTTOMLEFT">
+              <Offset><AbsDimension x="15" y="37"/></Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
         <!--
               <FontString name="$parent_totals" inherits="GameFontHighlightSmall" text="Raid 0/Guild 0">
                 <Anchors>
@@ -1473,93 +1481,6 @@
         </Scripts>
       </CheckButton>
   -->
-
-      <EditBox name="QDKP2_Frame2_Bid_Item" inherits="InputBoxTemplate">
-        <Size>
-          <AbsDimension x="150" y="25"/>
-        </Size>
-        <Anchors>
-          <Anchor point="BOTTOMRIGHT">
-            <Offset>
-              <AbsDimension x="-30" y="13"/>
-            </Offset>
-          </Anchor>
-        </Anchors>
-        <Scripts>
-          <OnLoad>
-            this:SetAutoFocus( false );
-          </OnLoad>
-          <OnEnterPressed>
-            this:ClearFocus()
-          </OnEnterPressed>
-          <OnEnter>
-            GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
-            GameTooltip:SetText(QDKP2_LOC_GUIBIDITEMDESC);
-          </OnEnter>
-          <OnLeave>
-            GameTooltip:Hide();
-          </OnLeave>
-          <OnMouseDown>
-            if not QDKP2_BidM_isBidding() then
-            QDKP2GUI_Roster:DragDropManager()
-            end
-          </OnMouseDown>
-          <OnReceiveDrag>
-            if not QDKP2_BidM_isBidding() then
-            QDKP2GUI_Roster:DragDropManager()
-            end
-          </OnReceiveDrag>
-          <OnEditFocusGained>
-            if QDKP2_BidM_isBidding() then
-            this:ClearFocus()
-            end
-          </OnEditFocusGained>
-        </Scripts>
-      </EditBox>
-
-
-      <Button name="QDKP2_Frame2_Bid_Button" inherits="UIPanelButtonTemplate" text="QDKP2_LOC_GUISTARTBID">
-        <Size>
-          <AbsDimension x="80" y="20"/>
-        </Size>
-        <Anchors>
-          <Anchor relativePoint="LEFT" point="RIGHT" relativeTo="QDKP2_Frame2_Bid_Item">
-            <Offset>
-              <AbsDimension x="-5" y="0"/>
-            </Offset>
-          </Anchor>
-        </Anchors>
-        <Scripts>
-          <OnClick>
-            QDKP2GUI_Roster:PushedBidButton()
-          </OnClick>
-        </Scripts>
-      </Button>
-
-      <Button name="QDKP2_Frame2_Bid_ButtonWin" inherits="UIPanelButtonTemplate" text="QDKP2_LOC_GUISETWINNER">
-        <Size>
-          <AbsDimension x="80" y="20"/>
-        </Size>
-        <Anchors>
-          <Anchor relativePoint="LEFT" point="RIGHT" relativeTo="QDKP2_Frame2_Bid_Button">
-            <Offset>
-              <AbsDimension x="-2" y="0"/>
-            </Offset>
-          </Anchor>
-        </Anchors>
-        <Scripts>
-          <OnEnter>
-            GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
-            GameTooltip:SetText(QDKP2_LOC_GUISETWINNERDESC);
-          </OnEnter>
-          <OnLeave>
-            GameTooltip:Hide();
-          </OnLeave>
-          <OnClick>
-            QDKP2GUI_Roster:PushedBidWinButton()
-          </OnClick>
-        </Scripts>
-      </Button>
 
 
       <!-- Title (used to align the sort buttons -->
@@ -1833,9 +1754,9 @@
           <AbsDimension x="100" y="20"/>
         </Size>
         <Anchors>
-          <Anchor relativePoint="LEFT" point="RIGHT" relativeTo="QDKP2_frame2_showRaid">
+          <Anchor point="BOTTOMRIGHT">
             <Offset>
-              <AbsDimension x="-5" y="0"/>
+              <AbsDimension x="-145" y="15"/>
             </Offset>
           </Anchor>
         </Anchors>

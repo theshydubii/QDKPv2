@@ -29,6 +29,12 @@
         "SlashCmdList",
         "ReloadUI",
         "RAID",
-        "hash_SlashCmdList"
+        "hash_SlashCmdList",
+        "GameTooltip_SetDefaultAnchor",
+        "StaticPopupDialogs",
+        "StaticPopup_Show",
+        "UISpecialFrames",
+        "DressUpItemLink",
+        "ShowInspectCursor"
     ]
 }

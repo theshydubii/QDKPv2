@@ -6,7 +6,7 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## Dependencies: QDKP_V2
-## SavedVariablesPerCharacter: QDKP2_dkpPerHour,QDKP2_dkpIM,QDKP2_dkpAwardRaid,QDKP2_dkpMenuAward
+## SavedVariablesPerCharacter: QDKP2_dkpPerHour,QDKP2_dkpIM,QDKP2_dkpAwardRaid,QDKP2_dkpMenuAward,QDKP2_RaidLootSettings
 
 Code\GUI.lua
 Code\Log.lua
@@ -16,6 +16,8 @@ Code\Minimap_button.lua
 Code\Misc.lua
 Code\Roster.lua
 Code\ToolBox.lua
+Code\RaidLootManualData.lua
+Code\RaidLoot.lua
 Code\Init.lua
 Code\LogEntryMod.lua
 
