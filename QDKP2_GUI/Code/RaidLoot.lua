@@ -538,14 +538,8 @@ function QDKP2_RaidLoot_SetSelectedWinner()
         status:SetText("Select a bidder in the Bid Manager roster first.")
         return
     end
-    local bidderCount = 0
-    for _ in pairs(QDKP2_BidM.LIST) do bidderCount = bidderCount + 1; end
-    if bidderCount < 2 then
-        status:SetText("Select Winner requires at least two bidders or rollers.")
-        return
-    end
     QDKP2_BidM.PendingWinner = selected
-    status:SetText("Winner staged: " .. selected .. ". Press Close Round to start the countdown.")
+    status:SetText("Winner selected: " .. selected .. ". Close Round to confirm and announce.")
     QDKP2_RaidLoot_Refresh()
 end
 
@@ -586,7 +580,7 @@ function QDKP2_RaidLoot_Refresh()
     end
     local bidderCount = 0
     for _ in pairs(QDKP2_BidM.LIST or {}) do bidderCount = bidderCount + 1; end
-    if (activeRound or inProgress) and bidderCount >= 2 then
+    if (activeRound or inProgress) and bidderCount > 0 then
         winnerButton:Enable()
     else
         winnerButton:Disable()
