@@ -56,9 +56,6 @@ function QDKP2GUI_OnLoad()
     QDKP2GUI_MiniBtn_Refresh()
     QDKP2_Frame2_Header:SetText("Roster")
     QDKP2_Frame4_Header:SetText("Set Player Amounts")
-    -- hook to detect shift-click on item link
-    QDKP2_Old_ChatEdit_InsertLink = ChatEdit_InsertLink
-    ChatEdit_InsertLink = QDKP2_ChatEdit_InsertLink
 end
 
 -------------------------------- QDKP2 EVENTS MANAGER --------------------------------
@@ -72,16 +69,5 @@ function QDKP2GUI_UpdateManager(event, what)
     end
     if QDKP2GUI_RaidLoot_Refresh then
         QDKP2GUI_RaidLoot_Refresh();
-    end
-end
-
-function QDKP2_ChatEdit_InsertLink(...)
-    if QDKP2_Frame3:IsVisible() then
-        QDKP2frame3_reasonBox:SetText(...)
-    elseif QDKP2_RaidLootFrame and QDKP2_RaidLootFrame:IsShown() then
-        local link = ...
-        QDKP2_RaidLoot_SelectItem(link)
-    else
-        QDKP2_Old_ChatEdit_InsertLink(...)
     end
 end

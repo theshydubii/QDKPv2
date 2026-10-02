@@ -8,6 +8,7 @@
 -- API Documentation:
 -- QDKP2_BidM_Start(item): Starts a new bidding for ITEM. item is not mandatory, but highly raccomanded.
 -- QDKP2_BidM_CancelBid(): Stops the current bidding (if any) and cancels all bids.
+-- QDKP2_BidM_AbortRound(): Silently stops the current bid or roll round and clears its data.
 -- QDKP2_BidM_Winner(winner): Process the winner. triggers countdown if set so, then announce if set so.
 -- QDKP2_BidM_Reset(): Clears all the bids. Does not process notifications
 -- QDKP2_BidM_Countdown(sec,winner): Triggers a countdown. if winner, triggers a win at end.
@@ -209,6 +210,18 @@ function QDKP2_BidM_Reset()
     -- Clears allthe bid. Does not stop a ongoing bidding.
     QDKP2_BidM.LIST = {}
     QDKP2_Events:Fire("DATA_UPDATED", "roster")
+end
+
+function QDKP2_BidM_AbortRound()
+    QDKP2_BidM_CountdownCancel()
+    QDKP2_BidM_CloseBid(true)
+    QDKP2_RollPhase = nil
+    QDKP2_BidM.ITEM = nil
+    QDKP2_BidM.Phase = nil
+    QDKP2_BidM.PendingWinner = nil
+    QDKP2_BidM.LastSettlement = nil
+    QDKP2_BidM.ACCEPT_BID = nil
+    QDKP2_BidM_Reset()
 end
 
 ---------------------- BID QUERYING -----------------------
@@ -862,4 +875,3 @@ end
 function QDKP2_BidM_isBidding()
     return QDKP2_BidM.BIDDING
 end
-

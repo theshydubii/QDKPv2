@@ -22,7 +22,16 @@ local selectedItemLink
 local activeRound
 local queuedMessages = {}
 local queueElapsed = 0
+local queueMessage
 local MAX_MESSAGE_LENGTH = 230
+
+local function clearQueuedMessages()
+    queuedMessages = {}
+    queueElapsed = 0
+    if queueFrame then
+        queueFrame:Hide()
+    end
+end
 
 local frame = CreateFrame("Frame", "QDKP2_RaidLootFrame", UIParent)
 frame:SetWidth(390)
@@ -220,6 +229,20 @@ end)
 local reopenButton = createButton("QDKP2_RaidLootReopen", "Undo / Reopen", 274, -344, 105, function()
     QDKP2_RaidLoot_UndoAndReopen()
 end)
+local cancelRoundButton = createButton("QDKP2_RaidLootCancelRound", "Cancel Round (No Winner)", 83, -380, 224,
+    function()
+        if not activeRound and not QDKP2_BidM_isBidding() and not QDKP2_RollPhase then
+            status:SetText("No active round to cancel.")
+            return
+        end
+        local item = (activeRound and activeRound.item) or QDKP2_BidM.ITEM or "the item"
+        QDKP2_BidM_AbortRound()
+        clearQueuedMessages()
+        queueMessage("The round for " .. item .. " was closed with no winner.")
+        activeRound = nil
+        status:SetText("Round cancelled with no winner; bids cleared.")
+        QDKP2_RaidLoot_Refresh()
+    end)
 
 local function formatItemLink()
     if not selectedItemID then
@@ -236,10 +259,17 @@ function QDKP2_RaidLoot_SelectItem(itemID, link)
     if type(itemID) == "string" then
         itemID = tonumber(itemID) or tonumber(string.match(itemID, "item:(%d+)"))
     end
-    selectedItemID = tonumber(itemID)
-    if selectedItemID and selectedItemID < 1 then
-        selectedItemID = nil;
+    local newItemID = tonumber(itemID)
+    if newItemID and newItemID < 1 then
+        newItemID = nil;
     end
+    if newItemID ~= selectedItemID and (activeRound or QDKP2_BidM_isBidding() or QDKP2_RollPhase) then
+        QDKP2_BidM_AbortRound()
+        clearQueuedMessages()
+        activeRound = nil
+        status:SetText("Round cancelled; bids cleared because the item changed.")
+    end
+    selectedItemID = newItemID
     selectedItemLink = link
     itemIDBox:SetText(selectedItemID and tostring(selectedItemID) or "")
     local name = selectedItemID and (GetItemInfo(selectedItemID) or ("item:" .. selectedItemID)) or nil
@@ -326,7 +356,7 @@ local function getMatches(itemID)
     return output
 end
 
-local function queueMessage(text)
+queueMessage = function(text)
     while string.len(text) > 230 do
         local splitAt = string.find(string.sub(text, 1, 230), ";[^;]*$") or 230
         table.insert(queuedMessages, string.sub(text, 1, splitAt - 1))
@@ -549,8 +579,10 @@ function QDKP2_RaidLoot_Refresh()
     end
     if activeRound or inProgress then
         closeRoundButton:Enable()
+        cancelRoundButton:Enable()
     else
         closeRoundButton:Disable();
+        cancelRoundButton:Disable();
     end
     local bidderCount = 0
     for _ in pairs(QDKP2_BidM.LIST or {}) do bidderCount = bidderCount + 1; end

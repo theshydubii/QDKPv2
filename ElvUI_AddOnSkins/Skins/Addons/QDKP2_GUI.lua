@@ -54,6 +54,7 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 			QDKP2_RaidLootMS, QDKP2_RaidLootOS, QDKP2_RaidLootDE,
 			QDKP2_RaidLootBIS, QDKP2_RaidLootAlternative, QDKP2_RaidLootOptional,
 			QDKP2_RaidLootCloseRound, QDKP2_RaidLootWinner, QDKP2_RaidLootReopen,
+			QDKP2_RaidLootCancelRound,
 			QDKP2_RaidLootItemClear,
 		}
 		for _, button in ipairs(raidLootButtons) do
@@ -157,6 +158,12 @@ S:AddCallbackForAddon("QDKP2_GUI", "QDKP2_GUI", function()
 			child:StripTextures()
 			child:SetHighlightTexture("Interface\\AddOns\\ElvUI\\Media\\Textures\\Highlight.tga", "Add")
 			S:HandleButtonHighlight(child, 1, 0.8, 0.1)
+		end
+	end
+	for i = 1, 25 do
+		local expandButton = _G["QDKP2_frame5_entry" .. i .. "_expande"]
+		if expandButton then
+			S:HandleButton(expandButton)
 		end
 	end
 

@@ -267,17 +267,7 @@ function SetAmounts.Set(self, sure)
     QDKP2GUI_Log:Refresh()
 end
 
----------------------- ShiftLink & DragDrop ----------------------------
--- This function is called whenever an itemlink is shift clicked.
-function Toolbox.ShiftClickItem(item)
-    if item and Toolbox.Frame:IsVisible() then
-        Toolbox:SetLootCharge(item)
-        QDKP2frame3_dkpBox:SetFocus()
-    elseif QDKP2frame6_ReasonBox:IsVisible() then
-        QDKP2frame6_ReasonBox:SetText(item)
-    end
-end
-
+--------------------------- DragDrop -----------------------------------
 function Toolbox.DragDropManager(self)
     local what, a1, a2 = GetCursorInfo()
     if what == 'item' then
@@ -287,8 +277,5 @@ function Toolbox.DragDropManager(self)
     end
 end
 
-hooksecurefunc("ChatEdit_InsertLink", Toolbox.ShiftClickItem)
-
 QDKP2GUI_Toolbox = Toolbox
 QDKP2GUI_SetAmounts = SetAmounts
-

@@ -285,7 +285,7 @@ QDKP2_LOC_GUIGUILDONLINE = "Guild (Online)"
 QDKP2_LOC_GUIRAID = "Raid"
 QDKP2_LOC_GUIBIDMANAGER = "Bid manager"
 QDKP2_LOC_GUIBIDITEMDESC =
-    "Drag and drop here or shift+click the item\n you wish to bid for. You can also enter\na custom text instead of the item."
+    "Drag and drop the item you wish to bid for\nhere. You can also enter a custom text\ninstead of the item."
 QDKP2_LOC_GUISTARTBID = "Start Bidding"
 QDKP2_LOC_GUICANCELBID = "Cancel Bid"
 QDKP2_LOC_GUICLOSEBID = "Close Bidding"
